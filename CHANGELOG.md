@@ -21,6 +21,13 @@
   quantum ⟨u²⟩ at 5 K and 300 K, and is zero-point-dominated at 5 K.
   Suite: 66 passed.
 - `requirements.txt`: + `hiphive>=1.5`.
+- First M2 acceptance run on the GaTa₄Se₈ 5 K dataset (results git-ignored):
+  quantum u_rms = 0.040 Å/component vs the RMC ensemble's 0.095 — the
+  displacement-variance gap M3 will decompose (with the caveat that RMC
+  single-atom moves decorrelate neighbours, inflating site variance while
+  still fitting pair widths). Baseline closure Rw(Q) = 0.74, Rw(r) = 0.58;
+  measured G(r) peaks systematically broader than the quantum-harmonic null
+  model. band_T tracks band to 0.18 THz at 5 K.
 - `docs/milestone2-plan.md`: milestone-2 design draft (awaiting review).
   Decisions put forward: harmonic **quantum** sampling instead of classical
   Langevin MD at 5 K (zero-point-dominated regime), closure computed at the

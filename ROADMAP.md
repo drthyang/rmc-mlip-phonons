@@ -53,7 +53,16 @@ converged configs (F-4̄3m, dynamically stable, 39 branches). `pytest -q` is
       measured STOG grid, scale+offset fitted (mirrors RMC), Rw in Q and r
 - [x] temperature-effective force constants → `band_T.yaml` (hiPhive 2nd
       order; validated band_T ≈ band on Cu/EMT)
-- [ ] GTS acceptance: closure Rw + band_T on the 5 K dataset (run started)
+- [x] GTS acceptance run (5 K dataset, cubic null model): u_rms(quantum) =
+      0.040 Å/comp vs RMC ensemble 0.095 Å/comp (the M3 target gap);
+      baseline closure Rw(Q) = 0.74 / Rw(r) = 0.58 (Q-space dominated by
+      box-truncation vs instrument peak-shape mismatch — needs resolution
+      convolution before the residual is fully interpretable); measured G(r)
+      peaks systematically broader than the quantum null model = static/
+      anharmonic excess. band_T ≈ band (max |Δω| = 0.18 THz at 5 K) —
+      machinery validated on the real system.
+- [ ] closure refinement: instrument-resolution / box-size-matched F(Q)
+      comparison so the null-model residual isolates the distortion
 
 ## Milestone 3 — experiment-constrained FCs + verdicts
 
