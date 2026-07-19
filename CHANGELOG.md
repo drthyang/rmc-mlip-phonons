@@ -2,6 +2,25 @@
 
 ## [Unreleased]
 ### Added
+- `md_run.py` (milestone 2): `sample` mode draws random supercell snapshots
+  from the phonopy model with **quantum statistics** (zero-point included;
+  phonopy's finite-temperature random displacements — the force-constant
+  cache is saved/restored around the dataset swap, phonopy ≥4 invalidates
+  it). `md` mode is a classical Langevin NVT cross-check that warns loudly
+  below 100 K. Native closure machinery: species-partial g_ij(r) (chunked
+  minimum-image histograms), Faber–Ziman neutron weighting (Sears 1992
+  b_coh), sine transforms G(r) ↔ F(Q)=S(Q)−1 on the measured STOG grid, and
+  a scale+offset Rw fit mirroring the RMC convention. Optional hiPhive
+  2nd-order effective-FC fit → `band_T.yaml` sidecar (band.yaml untouched).
+  Outputs: `closure.json`, `gr_sim.dat`, `sq_sim.dat`, `relaxed_expt.cif`,
+  `band_T.yaml`.
+- Tests: 10 analytic unit tests (fcc first-shell + coordination, g(r)
+  normalisation identity, FT round-trip, Bragg-position check, weight
+  closure, scale/offset fit, .fq parser) and 6 slow integration tests on
+  Cu/EMT — including the D1 physics guard: sampled MSD matches phonopy's
+  quantum ⟨u²⟩ at 5 K and 300 K, and is zero-point-dominated at 5 K.
+  Suite: 66 passed.
+- `requirements.txt`: + `hiphive>=1.5`.
 - `docs/milestone2-plan.md`: milestone-2 design draft (awaiting review).
   Decisions put forward: harmonic **quantum** sampling instead of classical
   Langevin MD at 5 K (zero-point-dominated regime), closure computed at the

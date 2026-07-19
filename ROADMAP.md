@@ -42,12 +42,18 @@ converged configs (F-4̄3m, dynamically stable, 39 branches). `pytest -q` is
 
 ## Milestone 2 — finite temperature
 
-- [x] `docs/milestone2-plan.md` (design first) — **drafted, awaiting review**;
-      key decisions: quantum sampling (not classical MD) at 5 K, closure at
-      the experimental lattice, hiPhive as the shared M2/M3 fitting engine
-- [ ] `md_run.py`: MLIP-MD at experimental T (Langevin → NPT)
-- [ ] closure: G(r) / S(Q) from MD vs measured data
-- [ ] temperature-effective force constants → `band_T.yaml`
+- [x] `docs/milestone2-plan.md` — reviewed over three rounds (quantum sampling
+      at 5 K, closure at the experimental lattice, hiPhive engine, powder
+      q-star degeneracy, MACE-as-null-model confirmed by probes)
+- [x] `md_run.py`: `sample` mode = harmonic **quantum** sampling (zero-point
+      correct at 5 K; MSD verified against phonopy's analytic ⟨u²⟩);
+      `md` mode = classical Langevin cross-check with low-T warning.
+      NPT deferred until a higher-T dataset exists.
+- [x] closure: native partial-g_ij(r) → Faber–Ziman G(r) → F(Q)=S(Q)−1 on the
+      measured STOG grid, scale+offset fitted (mirrors RMC), Rw in Q and r
+- [x] temperature-effective force constants → `band_T.yaml` (hiPhive 2nd
+      order; validated band_T ≈ band on Cu/EMT)
+- [ ] GTS acceptance: closure Rw + band_T on the 5 K dataset (run started)
 
 ## Milestone 3 — experiment-constrained FCs + verdicts
 
