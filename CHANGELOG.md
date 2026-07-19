@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 ### Added
+- `docs/idea-dynamic-refinement.md`: concept note for the long-range
+  inversion ("model-space RMC" / "dynamic EPSR") — Metropolis/gradient
+  refinement of a model whose MLIP-generated quantum ensemble reproduces
+  total scattering + Bragg + INS jointly; two flavors (structure vs
+  potential refinement), literature map (EPSR, DiffTRe, TDS inversion,
+  RMC-phonons, hybrid RMC-MLIP, uMLIP-INS), cost/identifiability analysis,
+  and the GTS order-parameter demonstration path.
 - `md_run.py` (milestone 2): `sample` mode draws random supercell snapshots
   from the phonopy model with **quantum statistics** (zero-point included;
   phonopy's finite-temperature random displacements — the force-constant

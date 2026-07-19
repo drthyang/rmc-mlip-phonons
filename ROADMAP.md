@@ -73,6 +73,15 @@ converged configs (F-4̄3m, dynamically stable, 39 branches). `pytest -q` is
 - [ ] emit `verdicts.json` (per-mode static/dynamic badges)
 - [ ] viewer-side overlay + badge panels (tracked in `rmc-phonon-dynamics`)
 
+## Vision — model-space RMC / "dynamic EPSR" (concept, post-M3)
+
+- [ ] `docs/idea-dynamic-refinement.md` captures the long-range inversion:
+      refine a model (structure ⊕ potential) whose MLIP-generated quantum
+      ensemble reproduces G(r) + S(Q) + Bragg + INS S(Q,ω) jointly — static
+      vs dynamic separated by construction. Literature-mapped 2026-07-19;
+      the assembled package appears novel. M3 is its linearized first pass;
+      M2 is its forward evaluator.
+
 ## Milestone 4 — application & methods paper
 
 - [ ] real datasets end-to-end; error budget of covariance vs MLIP bands
