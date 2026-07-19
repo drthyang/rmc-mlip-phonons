@@ -16,9 +16,10 @@
 
 ## Done — Milestone 1 hardening
 
-*Green end-to-end on synthetic fcc Cu with EMT and MACE-MP-0 — `pytest -q` is
-44 tests (unit + `slow`/`mace` integration). The one open item before M1 is
-closed on real data is the target RMC dataset run.*
+*Green end-to-end on synthetic fcc Cu (EMT + MACE-MP-0) **and on the real
+target dataset**: GaTa₄Se₈ 5 K RMC ensemble, single config and all 493
+converged configs (F-4̄3m, dynamically stable, 39 branches). `pytest -q` is
+50 tests (unit + `slow`/`mace` integration).*
 
 - [x] pytest suite: parser fixtures, circular mean, `--ref` CIF assignment,
       `auto_dim`, mixed-occupancy handling (`tests/`, 21 tests)
@@ -28,7 +29,14 @@ closed on real data is the target RMC dataset run.*
       fcc primitive; migrated off deprecated `get_band_structure_dict()`)
 - [x] first real MACE-MP-0 run on the fixture (stability + Γ acoustics
       asserts) — surfaced + fixed the 0.01 Å MLIP-noise imaginary-mode artifact
-      (default displacement now 0.03 Å). Target-dataset run pending real data.
+      (default displacement now 0.03 Å)
+- [x] target-dataset run: GaTa₄Se₈ 5 K (`data/`, 8×8×8 = 26,624-atom configs).
+      Config 1 and the full 493-converged-config ensemble both → F-4̄3m,
+      dynamically stable, same MACE minimum (max band Δω 0.0009 THz); ensemble
+      average recovers F-4̄3m at 10× tighter symprec (0.01 vs 0.1). Caveats to
+      carry: +1.6 % lattice overexpansion (MACE-MP-0 small), no NAC/LO–TO yet.
+      Added `--skip-nonconverged` (drops 0-move configs; found exactly the 8
+      bad ones: 0, 141, 161, 170, 413, 419, 442, 492).
 - [x] `--max-configs` / `--stride` / `--seed` for 500+ config ensembles
       (`select_configs`, recorded in `summary.json["sampling"]`)
 

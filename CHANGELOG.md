@@ -1,5 +1,19 @@
 # Changelog
 
+## [Unreleased]
+### Added
+- `--skip-nonconverged`: drop input configs whose rmc6f header reports
+  `Number of moves generated: 0` (RMC runs that never started). Cheap
+  header-only scan (`read_moves_generated` / `drop_nonconverged`); files
+  without the header line are kept, so synthetic ensembles pass through.
+  Drop count recorded in `summary.json["sampling"]`. 6 unit tests.
+- First real-dataset runs (GaTa₄Se₈ 5 K RMC ensemble, 26,624-atom configs):
+  single converged config and all 493 converged configs both produce a
+  dynamically stable F-4̄3m band structure at the same MACE-MP-0 minimum
+  (max band Δω 0.0009 THz); the ensemble average recovers F-4̄3m at 10×
+  tighter symprec than a single config. Not committed (data/ and results/
+  are git-ignored); see ROADMAP for caveats (lattice +1.6 %, no NAC yet).
+
 ## [0.2.0] — 2026-07-19
 
 Milestone-1 hardening. The pipeline now runs end-to-end against the installed

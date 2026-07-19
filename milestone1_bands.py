@@ -354,6 +354,41 @@ def collect_inputs(paths):
     return files
 
 
+def read_moves_generated(path: Path):
+    """Number of RMC moves generated, from the rmc6f header (dimensionless count).
+
+    Reads only the header (stops at the ``Atoms:`` line), so it is cheap even
+    for multi-MB configurations. Returns ``None`` when the file carries no
+    ``Number of moves generated`` line (e.g. synthetic fixtures).
+    """
+    with Path(path).open(errors="replace") as fh:
+        for i, line in enumerate(fh):
+            low = line.strip().lower()
+            if low.startswith("atoms"):
+                break
+            if low.startswith("number of moves generated"):
+                for tok in line.replace(":", " ").split():
+                    if tok.isdigit():
+                        return int(tok)
+            if i > 500:  # header should never be this long
+                break
+    return None
+
+
+def drop_nonconverged(files):
+    """Split inputs into (converged, dropped) by the rmc6f header move count.
+
+    A configuration is dropped only when its header explicitly reports
+    ``Number of moves generated: 0`` — an RMC run that never started. Files
+    without the header line are kept (treated as converged), so synthetic or
+    externally generated ensembles pass through untouched. Order is preserved.
+    """
+    kept, dropped = [], []
+    for f in files:
+        (dropped if read_moves_generated(f) == 0 else kept).append(f)
+    return kept, dropped
+
+
 def select_configs(files, stride=1, max_configs=None, seed=0):
     """Deterministically subsample a sorted list of input configurations.
 
@@ -398,6 +433,9 @@ def main(argv=None):
                     help=".rmc6f files and/or directories containing them")
     ap.add_argument("--ref", type=Path, default=None,
                     help="parent CIF for site assignment when rmc6f lacks site ids")
+    ap.add_argument("--skip-nonconverged", action="store_true",
+                    help="drop configs whose rmc6f header reports 'Number of "
+                    "moves generated: 0' (RMC runs that never started)")
     ap.add_argument("--stride", type=int, default=1,
                     help="use every k-th input configuration (ordered decimation)")
     ap.add_argument("--max-configs", type=int, default=None,
@@ -435,6 +473,16 @@ def main(argv=None):
     outdir.mkdir(parents=True, exist_ok=True)
 
     all_files = collect_inputs(args.inputs)
+    dropped = []
+    if args.skip_nonconverged:
+        all_files, dropped = drop_nonconverged(all_files)
+        if dropped:
+            print(f"  dropped {len(dropped)} non-converged config(s) "
+                  "(0 RMC moves):")
+            for f in dropped:
+                print(f"      {f.name}")
+        if not all_files:
+            raise SystemExit("all input configurations are non-converged")
     files = select_configs(all_files, args.stride, args.max_configs, args.seed)
     if len(files) != len(all_files):
         print(f"  subsampled {len(files)}/{len(all_files)} configs "
@@ -485,6 +533,7 @@ def main(argv=None):
     summary = {
         "inputs": [str(f) for f in files],
         "sampling": {"n_available": len(all_files), "n_used": len(files),
+                     "n_dropped_nonconverged": len(dropped),
                      "stride": args.stride, "max_configs": args.max_configs,
                      "seed": args.seed},
         "fold": fold_report,
