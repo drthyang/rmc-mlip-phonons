@@ -88,7 +88,14 @@ converged configs (F-4̄3m, dynamically stable, 39 branches). `pytest -q` is
 - [ ] **DFT fine-tuning — now on the critical path** (probe D): MACE-MP-0
       penalizes the refined GaTa₄Se₈ P-4̄2₁m distortion by +293 meV/f.u.
       (pure single well at cubic) where the paper's plain-PBE QE retains it.
-      Fine-tune on QE-PBE forces/energies (Appendix E settings) over
-      cubic/distorted/perturbed configs until the well survives; then
-      tetragonal phonons → the 13-meV test vs measured PDOS.
+      **Tiered honestly (mechanism is SOC — user):** Tier 1, harmonic
+      dynamics *at* the ordered structure, is PBE-representable (the paper's
+      own PDOS evidence) → plain-PBE/Δ-learning fine-tune buys tetragonal
+      phonons and the 13-meV forward model. Tier 2, landscape energetics
+      (well depth/barriers/degeneracy splittings), requires PBE+SOC(+U)
+      training data — conditional claims only (PBE+SOC w/o U is metallic in
+      the doubled cell). Tier 3, the nonadiabatic Mexican-hat fluctuation
+      mechanism and T* selection, is beyond ANY adiabatic MLIP — it is
+      measured by M3 and encoded phenomenologically by the dynamic-EPSR
+      refinement (docs/idea-dynamic-refinement.md), not derived ab initio.
 - [ ] manuscript draft

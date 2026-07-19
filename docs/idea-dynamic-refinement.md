@@ -54,6 +54,25 @@ resolution of exactly the ambiguity the GaTa₄Se₈ 5 K problem exhibits.
 by MLIP lattice dynamics with quantum statistics, χ² jointly over total
 scattering + Bragg + S(Q, ω). "Dynamic EPSR" / "model-space RMC".
 
+## Why this loop is *necessary*, not just elegant (SOC argument)
+
+The GaTa₄Se₈ distortion mechanism is spin-orbit + correlation physics
+(j = 3/2 cluster orbitals, nonadiabatic Mexican-hat degeneracy, intercluster
+spin-orbit exchange selecting the order at T* — Yang et al. PRR 4, 033123
+and refs. therein). Consequences (user's point, 2026-07-19):
+
+- Plain PBE retaining the distorted stationary point does **not** validate
+  the landscape energetics; PBE+SOC without U is even metallic in the
+  doubled cell. Any ab initio route to the *effective* lattice dynamics at
+  scale is impractical (SOC+U forces for 10⁴-atom ensembles).
+- A single adiabatic MLIP surface — however trained — cannot represent the
+  *nonadiabatic* fluctuation dynamics among degenerate distortion channels.
+- Therefore the experiment-constrained refinement is the only quantitative
+  path: the measured data (INS + Bragg + F(Q)) already contain the
+  SOC-driven physics, and the loop encodes it *phenomenologically* into
+  effective force constants / well parameters. Electronic-structure theory
+  interprets the refined parameters; it is not the engine.
+
 ## Why it is tractable (and where it bites)
 
 - **Cost.** Naive per-atom moves × full phonon recompute per move is
