@@ -18,6 +18,10 @@
   `band_structure` property (phonopy ≥4).
 
 ### Added
+- Ensemble subsampling for large (500+ config) runs: `--stride` (ordered
+  decimation), `--max-configs` (seeded random cap), and `--seed`, via the pure
+  `select_configs` helper. Fully deterministic; recorded in
+  `summary.json["sampling"]`. 11 unit tests (`tests/test_select_configs.py`).
 - `tests/test_mace_end_to_end.py`: real-dependency integration test running
   MACE-MP-0 (small, float64) on the fcc-Cu fixture — asserts no imaginary modes
   (min > −0.05 THz), 3 branches vanishing at Γ, and float64. Marked `slow` +

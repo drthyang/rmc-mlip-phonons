@@ -354,12 +354,57 @@ def collect_inputs(paths):
     return files
 
 
+def select_configs(files, stride=1, max_configs=None, seed=0):
+    """Deterministically subsample a sorted list of input configurations.
+
+    Ergonomics for large (500+) ensembles. First takes every ``stride``-th
+    file (a cheap, ordered decimation), then, if more than ``max_configs``
+    remain, draws a random sample of ``max_configs`` of them seeded by
+    ``seed``. The returned list preserves the original order and is fully
+    reproducible for a given (stride, max_configs, seed).
+
+    Parameters
+    ----------
+    files : list[pathlib.Path]
+        Candidate inputs (assumed already sorted, e.g. from collect_inputs).
+    stride : int
+        Keep every ``stride``-th file (>= 1).
+    max_configs : int or None
+        Cap on the number of configurations after striding; ``None`` means no
+        cap. Must be >= 1 when given.
+    seed : int
+        Seed for the random subsample used only when the cap actually bites.
+
+    Returns
+    -------
+    list[pathlib.Path]
+    """
+    if stride < 1:
+        raise SystemExit("--stride must be >= 1")
+    selected = list(files[::stride])
+    if max_configs is not None:
+        if max_configs < 1:
+            raise SystemExit("--max-configs must be >= 1")
+        if len(selected) > max_configs:
+            rng = np.random.default_rng(seed)
+            keep = rng.choice(len(selected), size=max_configs, replace=False)
+            selected = [selected[i] for i in sorted(keep)]
+    return selected
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("inputs", nargs="+",
                     help=".rmc6f files and/or directories containing them")
     ap.add_argument("--ref", type=Path, default=None,
                     help="parent CIF for site assignment when rmc6f lacks site ids")
+    ap.add_argument("--stride", type=int, default=1,
+                    help="use every k-th input configuration (ordered decimation)")
+    ap.add_argument("--max-configs", type=int, default=None,
+                    help="cap the number of configs used; seeded random subsample "
+                    "of what remains after --stride (for 500+ config ensembles)")
+    ap.add_argument("--seed", type=int, default=0,
+                    help="seed for --max-configs random subsampling")
     ap.add_argument("--calc", default="mace", choices=["mace", "chgnet", "emt"])
     ap.add_argument("--model", default="medium",
                     choices=["small", "medium", "large"],
@@ -389,7 +434,12 @@ def main(argv=None):
     outdir = args.outdir
     outdir.mkdir(parents=True, exist_ok=True)
 
-    files = collect_inputs(args.inputs)
+    all_files = collect_inputs(args.inputs)
+    files = select_configs(all_files, args.stride, args.max_configs, args.seed)
+    if len(files) != len(all_files):
+        print(f"  subsampled {len(files)}/{len(all_files)} configs "
+              f"(stride={args.stride}, max_configs={args.max_configs}, "
+              f"seed={args.seed})")
     print(f"[1/5] parsing {len(files)} configuration(s)")
     configs = [parse_rmc6f(f) for f in files]
 
@@ -434,6 +484,9 @@ def main(argv=None):
               "at temperature (milestones 2-3).")
     summary = {
         "inputs": [str(f) for f in files],
+        "sampling": {"n_available": len(all_files), "n_used": len(files),
+                     "stride": args.stride, "max_configs": args.max_configs,
+                     "seed": args.seed},
         "fold": fold_report,
         "spacegroup_ladder_raw": sg_raw,
         "spacegroup_ladder_relaxed": sg_relaxed,
