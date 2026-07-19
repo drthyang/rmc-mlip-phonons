@@ -70,6 +70,15 @@ converged configs (F-4̄3m, dynamically stable, 39 branches). `pytest -q` is
       X5/X3/W4/Δ1 projections from the paper's supplemental tables, star
       pooling, stiff-mode RMC-noise ruler, ω-source hierarchy
       (GDOS → QE → MACE), SOC-tiered well fields, synthetic validation suite
+- [x] mode-pattern reference ingested: `reference/gts_mode_patterns.json`
+      from the SM Tables II–X (pypdf extraction + verification suite).
+      Found and corrected a probable sign typo in printed SM Table VIII
+      (X₃/Se3 δz/c: −0.0053 → +0.0053; flagged for author verification) —
+      after correction, all six implied mode amplitudes reproduce the
+      published Table II values to ≤3 % (X₅ 0.1201/0.1196 …), pinning the
+      normalization convention (parent-primitive-cell norm, ÷√8).
+- [ ] `mode_project.py`: model-free projection engine (star pooling,
+      per-config distributions, windowed OP, stiff-mode noise ruler)
 - [ ] `hiphive_fit.py`: RMC displacement snapshots + MLIP forces →
       effective FCs → bands
 - [ ] mode-projection amplitudes vs (ħ/2ω)coth(ħω/2k_BT); E(Q) mode mapping

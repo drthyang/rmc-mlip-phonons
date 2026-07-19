@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 ### Added
+- `reference/gts_mode_patterns.json` + `reference/ingest_sm_tables.py`:
+  the PRR 4, 033123 supplemental Tables II–X (refined structures, total
+  10 K displacement, and the six irrep patterns Γ₁/Γ₃/Δ/X₃/X₅/W₄) extracted
+  from the SM PDF (git-ignored) into a committed reference. Verification
+  suite (4 tests): row counts/multiplicities, |u| consistency, Table-IV
+  decomposition onto the six patterns (all sites at rounding level), and
+  implied amplitudes reproducing the published values to ≤3 % under the
+  parent-primitive normalization (÷√8). **Corrected a probable sign typo in
+  printed SM Table VIII (X₃, Se3, δz/c: −0.0053 → +0.0053)** — documented
+  in the JSON and flagged for author verification. Suite: 70 passed.
 - `docs/verdicts-schema.md`: milestone-3 design draft (awaiting review) —
   the `verdicts.json` sidecar contract (core fields per CLAUDE.md + optional
   extensions) and the mode-projection method: model-free projections onto
