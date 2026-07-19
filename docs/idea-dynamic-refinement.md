@@ -94,9 +94,19 @@ demonstration.
 
 ## Open questions
 
-1. INS data: instrument, form (powder S(Q, ω)?), Q/ω range, resolution —
-   determines the S(Q, ω) forward model (incoherent approximation vs full
-   coherent one-phonon).
+1. ~~INS data: instrument, form?~~ **Answered (2026-07-19): powder S(Q,E)
+   from SEQUOIA and ARCS (SNS direct-geometry TOF), with reduced phonon
+   DOS — for the whole lacunar-spinel series, not just GaTa₄Se₈.**
+   Consequences:
+   - The cheap first INS channel is the **neutron-weighted GDOS**
+     (incoherent approximation, σ_s/M-weighted partial DOS) — our forward
+     model produces it in minutes; series-wide MACE benchmarking becomes a
+     methods-paper pillar (V/Nb/Ta × S/Se chemical trends).
+   - The full-χ² channel later is coherent one-phonon powder S(Q,E)
+     (Euphonic / OCLIMAX-style), resolution-convolved per instrument.
+   - Remaining detail needed per dataset: incident energies, T points, and
+     whether the DOS reductions are multiphonon/multiple-scattering
+     corrected.
 2. Bragg forward model: profile convolution parameters to mirror the
    diffractometer (reuse the Rietveld TOF profile from the user's fits?).
 3. Acceptance temperature / error model for the joint χ² (channel weights).
