@@ -90,19 +90,36 @@ All MLIP evaluations `default_dtype="float64"`.
   RMC fit's own residual; not a pass/fail gate (MLIP systematics expected),
   but recorded in `closure.json`.
 
-## Risks / open questions for review
+## Resolved in review (2026-07-19)
 
-1. **Is `scale_ft_rmc.fq` the canonical measured dataset** to close against
-   (and is it normalized S(Q)−1 vs S(Q)? The values → −0.87 at low Q suggest
-   S(Q)−1 or F(Q) conventions) — need the exact RMCProfile convention used,
-   plus any scale/offset applied during the fit.
-2. Is a separate measured **G(r)** used in the RMC fit, or is r-space obtained
-   only by FT of this S(Q)? (Affects which space Rw is quoted in.)
-3. Does GaTa₄Se₈ have a known symmetry-lowering transition above/near 5 K?
-   The cubic RMC box would hide a global distortion; the residual P1 signal at
-   symprec 10⁻³ (M1 result) may be physical. Answer shapes M3's design.
-4. Neutron b_coh values/source to standardize on.
+1. **Measured data**: `scale_ft_rmc.fq` is STOG-generated. Verified high-Q
+   level ≈ 0 (mean +0.0004 over the last 500 points, oscillations decaying)
+   and low-Q → −0.87, i.e. the convention is **F(Q) = S(Q) − 1**
+   (Faber–Ziman). The RMC fit ran with **scale and offset free**, so the
+   closure comparison fits (and reports) the same two parameters —
+   shape-plus-scale Rw, mirroring the RMC treatment.
+2. **G(r) and S(Q) are the same measurement** (r-space = FT of this F(Q)).
+   Primary Rw is quoted in Q-space; G(r) shown for interpretation only.
+3. **The 5 K phase is NOT cubic** (user-confirmed lower symmetry). This is
+   *the physics target of the whole project*, and it reframes M2–M3:
+   - The cubic F-4̄3m MLIP model (M1) is the **null model**, not the answer.
+   - The cubic RMC box suppresses global strain, so the distortion lives in
+     **internal displacement patterns** — consistent with the residual P1
+     signal at symprec 10⁻³ surviving the 493-config average.
+   - **Closure becomes a discriminator, not a validation**: the residual
+     between quantum-sampled-cubic F(Q) and the measured F(Q) *contains the
+     distortion signature*. A perfect fit is not expected and not the goal.
+   - M3 verdicts then decompose it: which modes carry static (frozen)
+     displacement excess vs quantum-dynamic amplitudes.
+
+## Still open for review
+
+4. Neutron b_coh values/source to standardize on
+   (proposal: Sears 1992 tables — Ga 7.288, Ta 6.91, Se 7.97 fm).
 5. Is the classical-MD leg worth running at 5 K at all beyond the caveat demo,
    or reserve MD for a future higher-T dataset?
 6. hiPhive cutoffs/order for the effective fit (start: 2nd order only,
    cutoff ~6 Å, 2×2×2 supercell of the conventional cell)?
+7. Candidate low-T space group(s) from literature / your diffraction, and
+   whether the RMC fit co-fitted a Bragg profile — both shape the M3
+   symmetry-mode analysis (see questions posed in review).
