@@ -85,5 +85,10 @@ converged configs (F-4̄3m, dynamically stable, 39 branches). `pytest -q` is
 ## Milestone 4 — application & methods paper
 
 - [ ] real datasets end-to-end; error budget of covariance vs MLIP bands
-- [ ] DFT fine-tuning / active learning where the foundation model falls short
+- [ ] **DFT fine-tuning — now on the critical path** (probe D): MACE-MP-0
+      penalizes the refined GaTa₄Se₈ P-4̄2₁m distortion by +293 meV/f.u.
+      (pure single well at cubic) where the paper's plain-PBE QE retains it.
+      Fine-tune on QE-PBE forces/energies (Appendix E settings) over
+      cubic/distorted/perturbed configs until the well survives; then
+      tetragonal phonons → the 13-meV test vs measured PDOS.
 - [ ] manuscript draft

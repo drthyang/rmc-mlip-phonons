@@ -182,12 +182,23 @@ SEQUOIA Ei = 60 meV) **corrects three probe conclusions above**:
    guaranteed. The X-point primary CAN live inside the single-cell fold:
    the residual P1 signal at symprec 10⁻³ is the candidate carrier. M3 must
    project X5/X3 (and W4/Δ1) using the paper's displacement patterns.
-2. **Probe B's "MACE hosts no distorted well" was premature.** The paper's
-   plain-PBE (no SOC/U) Quantum-ESPRESSO relaxation *retains* the distorted
-   P-4̄2₁m structure (Table I: ℓ = 3.129 vs s = 2.927 Å). PBE-level physics
-   hosts the well; probe B only showed the cubic basin extends ≥ 0.02 Å
-   around the near-cubic ensemble average. Retest MACE starting **from the
-   refined tetragonal structure**.
+2. **Probe B's "MACE hosts no distorted well" was premature — now settled
+   definitively (probe D, 2026-07-19).** The paper's plain-PBE (no SOC/U)
+   Quantum-ESPRESSO relaxation *retains* the distorted P-4̄2₁m structure
+   (Table I: ℓ = 3.129 vs s = 2.927 Å). MACE was therefore retested starting
+   **from the refined experimental structure** (data/GTS_P-421m_LT.cif,
+   104 atoms, bimodal Ta–Ta 2.94–3.07 Å, spread 0.135 Å): it collapses
+   completely — all 48 bonds → one length (spread 0.000) at both fixed and
+   free cell, ΔE(tet−cub) = 0.00 meV/f.u. The E(λ) scan along
+   cubic→distortion is a clean single parabola: the experimental distortion
+   (max |u| = 0.118 Å ≈ the X5 amplitude) costs **+293 meV/f.u.** on the
+   MACE-MP-0-small surface where QE-PBE has a minimum. Conclusion: a
+   *foundation-model fidelity* failure (training-coverage), not an
+   XC-functional-level one — **M4 fine-tuning against the paper's QE-PBE
+   setup is on the critical path** for distorted-phase dynamics and the
+   13-meV analysis; the target is turning a +293 meV/f.u. hill into a
+   shallow well. The cubic MACE null model remains valid for M3 amplitude
+   verdicts (GDOS shape confirmed), caveat the 12–15 meV window.
 3. **The 13-meV diagnostic needs reconciling.** Their DFT cubic PDOS
    notably *lacks* ~13 meV weight (its appearance is the tetragonal
    fingerprint: 2A₁+2A₂+2B₁+3B₂+4E modes); our MACE **cubic** GDOS shows a
