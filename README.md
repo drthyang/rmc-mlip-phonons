@@ -50,6 +50,9 @@ python milestone1_bands.py path/to/run_dir/ -o m1_out
 
 # GPU, explicit phonopy supercell, smaller band.yaml:
 python milestone1_bands.py run_dir/ --device cuda --dim 3 3 2 --no-eigenvectors
+
+# large ensemble: keep every 2nd config, then a deterministic 100-config sample:
+python milestone1_bands.py run_dir/ --stride 2 --max-configs 100 --seed 0
 ```
 
 Then open `m1_out/band.yaml` in the `rmc-phonon-dynamics` viewer next to the
@@ -63,6 +66,10 @@ toy potential — not for science).
 - Universal MLIPs (MACE-MP-0, CHGNet) inherit PBE-level systematics and a
   few-percent global softening: judge band **shape** first; fine-tune on DFT
   for absolute frequencies (milestone 4).
+- Finite displacements default to **0.03 Å**, not phonopy's DFT-tuned 0.01 Å:
+  at 0.01 Å a universal MLIP's forces sit near its noise floor and spurious
+  imaginary modes appear just off Γ even for a stable crystal. Override with
+  `--displacement`.
 - Phonons need an **ordered** cell: mixed-occupancy sites are reduced to the
   majority element with a warning.
 - A diagonal RMCProfile supercell (Nx Ny Nz) is assumed.
