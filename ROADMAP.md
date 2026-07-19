@@ -18,7 +18,7 @@
 
 - [x] pytest suite: parser fixtures, circular mean, `--ref` CIF assignment,
       `auto_dim`, mixed-occupancy handling (`tests/`, 21 tests)
-- [ ] synthetic Cu fcc ensemble generator (`tests/fixtures/`)
+- [x] synthetic Cu fcc ensemble generator (`tests/fixtures/`)
 - [ ] EMT end-to-end integration test; fix ASE/phonopy API friction
 - [ ] first real MACE-MP-0 run on the fixture (stability + Γ acoustics
       asserts), then on the target dataset

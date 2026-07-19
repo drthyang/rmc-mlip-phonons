@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 ### Added
+- `tests/fixtures/make_synthetic_ensemble.py`: deterministic generator of N
+  noisy fcc-Cu `.rmc6f` configs (known answer: 3 acoustic branches, ω → 0 at
+  Γ). Runnable standalone or imported; `build_supercell` + `make_fcc_cu_ensemble`.
+  Tests verify parseability, that folding recovers the ideal 4-site fcc basis,
+  seed-determinism, and the noise-free exact limit.
 - `tests/` pytest suite (21 tests) for `milestone1_bands`: rmc6f parser
   fixtures (with/without site-id columns, bracketed labels, `Cell (Ang/deg)`
   vs `Lattice vectors` headers, ionic-label element cleaning, missing-section
