@@ -77,8 +77,17 @@ converged configs (F-4̄3m, dynamically stable, 39 branches). `pytest -q` is
       after correction, all six implied mode amplitudes reproduce the
       published Table II values to ≤3 % (X₅ 0.1201/0.1196 …), pinning the
       normalization convention (parent-primitive-cell norm, ÷√8).
-- [ ] `mode_project.py`: model-free projection engine (star pooling,
-      per-config distributions, windowed OP, stiff-mode noise ruler)
+- [x] `mode_project.py`: model-free projection engine — AMPLIMODES↔SHELX
+      site mapping solved numerically (Hungarian assignment + whole-orbit
+      anchor criterion), patterns expanded via SG-113 ops (covariance of the
+      refined field verified exact), parent idealized by Reynolds
+      projection, frame alignment with free origin, star pooling via the
+      full parent-group variant orbit, and JOINT (competitive) projection
+      to kill rounding-borne cross-irrep leakage. Validated: published
+      amplitudes reproduced from the printed tables; injected modes
+      recovered across arms. (Windowed OP + noise ruler: next.)
+- [ ] real-ensemble projection run: A_m(c) distributions for 490 configs
+      vs published static amplitudes + quantum yardstick → verdicts.json
 - [ ] `hiphive_fit.py`: RMC displacement snapshots + MLIP forces →
       effective FCs → bands
 - [ ] mode-projection amplitudes vs (ħ/2ω)coth(ħω/2k_BT); E(Q) mode mapping
