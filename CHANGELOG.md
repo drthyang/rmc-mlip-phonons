@@ -1,6 +1,13 @@
 # Changelog
 
 ## [Unreleased]
+### Changed
+- Default `--displacement` raised from 0.01 to **0.03 Å**. phonopy's 0.01 Å is
+  DFT-tuned; at that distance a universal MLIP's forces sit near the model
+  noise floor. In the first real MACE-MP-0 (small) run this produced a spurious
+  ~−0.33 THz mode just off Γ for dynamically-stable fcc Cu; 0.03 Å removes it
+  (verified: ASR/`symmetrize_force_constants` does not help, displacement does).
+
 ### Fixed
 - **Phonopy used the wrong symmetry tolerance.** `phonopy_bands` now threads
   `--symprec` into `Phonopy(...)`; phonopy's default (1e-5) is tighter than the
@@ -11,6 +18,12 @@
   `band_structure` property (phonopy ≥4).
 
 ### Added
+- `tests/test_mace_end_to_end.py`: real-dependency integration test running
+  MACE-MP-0 (small, float64) on the fcc-Cu fixture — asserts no imaginary modes
+  (min > −0.05 THz), 3 branches vanishing at Γ, and float64. Marked `slow` +
+  `mace`; auto-skips when mace-torch is absent (first run downloads/caches the
+  ~31 MB weights). `pytest.ini` gains the `mace` marker + torch/mace warning
+  filters.
 - `tests/test_emt_end_to_end.py`: EMT full-pipeline integration test (marked
   `slow`) on the synthetic fcc-Cu ensemble — asserts all three outputs are
   written, `relaxed.cif` is cubic Cu, exactly 3 branches vanish at Γ, and no

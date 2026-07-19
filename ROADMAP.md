@@ -22,8 +22,9 @@
 - [x] EMT end-to-end integration test; fix ASE/phonopy API friction
       (threaded `--symprec` into phonopy so `primitive_matrix="auto"` finds the
       fcc primitive; migrated off deprecated `get_band_structure_dict()`)
-- [ ] first real MACE-MP-0 run on the fixture (stability + Γ acoustics
-      asserts), then on the target dataset
+- [x] first real MACE-MP-0 run on the fixture (stability + Γ acoustics
+      asserts) — surfaced + fixed the 0.01 Å MLIP-noise imaginary-mode artifact
+      (default displacement now 0.03 Å). Target-dataset run pending real data.
 - [ ] `--max-configs` / `--stride` / `--seed` for 500+ config ensembles
 
 ## Milestone 2 — finite temperature

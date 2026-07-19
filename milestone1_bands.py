@@ -372,7 +372,11 @@ def main(argv=None):
                     metavar=("NX", "NY", "NZ"),
                     help="phonopy supercell (default: auto, >= ~12 A per axis)")
     ap.add_argument("--fmax", type=float, default=1e-3)
-    ap.add_argument("--displacement", type=float, default=0.01)
+    ap.add_argument("--displacement", type=float, default=0.03,
+                    help="finite-displacement distance, A. Default 0.03 (not "
+                    "phonopy's DFT-tuned 0.01): at 0.01 A the MLIP forces sit "
+                    "near the model noise floor and spurious imaginary modes "
+                    "appear just off Gamma even for a stable metal.")
     ap.add_argument("--npoints", type=int, default=101)
     ap.add_argument("--no-eigenvectors", action="store_true",
                     help="omit eigenvectors (much smaller band.yaml)")
