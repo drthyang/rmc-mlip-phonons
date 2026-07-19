@@ -1,0 +1,32 @@
+# --- rmc-mlip-phonons ignores ---
+
+# Ensembles, trajectories, results, model weights — never committed (see CLAUDE.md)
+data/
+results/
+m1_out*/
+*.rmc6f
+*.traj
+*.model
+*.model.gz
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+
+# MACE / torch foundation-model cache
+*.pt
+checkpoints/
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/

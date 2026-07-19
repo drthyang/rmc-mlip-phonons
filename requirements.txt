@@ -1,0 +1,8 @@
+# rmc-mlip-phonons — milestone 1
+numpy
+ase>=3.23
+spglib>=2.0
+phonopy>=2.21
+seekpath>=2.0        # automatic high-symmetry band paths for auto_band_structure
+mace-torch>=0.3.6    # pulls PyTorch; for CUDA builds install torch first (pytorch.org)
+# chgnet>=0.3        # optional alternative universal MLIP (--calc chgnet)
