@@ -66,7 +66,10 @@ converged configs (F-4̄3m, dynamically stable, 39 branches). `pytest -q` is
 
 ## Milestone 3 — experiment-constrained FCs + verdicts
 
-- [ ] `docs/verdicts-schema.md` — sidecar contract with the viewer
+- [x] `docs/verdicts-schema.md` — **drafted, awaiting review**: model-free
+      X5/X3/W4/Δ1 projections from the paper's supplemental tables, star
+      pooling, stiff-mode RMC-noise ruler, ω-source hierarchy
+      (GDOS → QE → MACE), SOC-tiered well fields, synthetic validation suite
 - [ ] `hiphive_fit.py`: RMC displacement snapshots + MLIP forces →
       effective FCs → bands
 - [ ] mode-projection amplitudes vs (ħ/2ω)coth(ħω/2k_BT); E(Q) mode mapping

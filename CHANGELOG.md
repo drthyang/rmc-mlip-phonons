@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 ### Added
+- `docs/verdicts-schema.md`: milestone-3 design draft (awaiting review) —
+  the `verdicts.json` sidecar contract (core fields per CLAUDE.md + optional
+  extensions) and the mode-projection method: model-free projections onto
+  the paper's supplemental Tables IV–X patterns, star pooling, per-config
+  distributions, windowed/local projections, the stiff-mode RMC-noise
+  ruler, ω-source hierarchy, SOC-tiered well/barrier fields, and a
+  synthetic validation suite built on the M2 quantum sampler.
 - `docs/idea-dynamic-refinement.md`: concept note for the long-range
   inversion ("model-space RMC" / "dynamic EPSR") — Metropolis/gradient
   refinement of a model whose MLIP-generated quantum ensemble reproduces
