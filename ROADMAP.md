@@ -16,8 +16,8 @@
 
 ## In progress — Milestone 1 hardening
 
-- [ ] pytest suite: parser fixtures, circular mean, `--ref` CIF assignment,
-      `auto_dim`, mixed-occupancy handling
+- [x] pytest suite: parser fixtures, circular mean, `--ref` CIF assignment,
+      `auto_dim`, mixed-occupancy handling (`tests/`, 21 tests)
 - [ ] synthetic Cu fcc ensemble generator (`tests/fixtures/`)
 - [ ] EMT end-to-end integration test; fix ASE/phonopy API friction
 - [ ] first real MACE-MP-0 run on the fixture (stability + Γ acoustics
