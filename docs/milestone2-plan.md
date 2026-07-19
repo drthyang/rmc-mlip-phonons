@@ -167,6 +167,40 @@ superlattice peaks constrain the order parameter directly) and/or chains
 seeded from a P-4̄2₁m starting config; (iii) M2 proceeds per plan — closure
 residuals of the cubic null model are now expected to carry the distortion.
 
+### Revisions forced by Yang et al., PRR 4, 033123 (2022) — read 2026-07-19
+
+The user's own paper on GaTa₄Se₈ (T* = 50 K order–disorder spin-orbital
+transition; P-4̄2₁m with a = 10.3437, c = 20.6878 Å; QE/phonopy DFT PDOS;
+SEQUOIA Ei = 60 meV) **corrects three probe conclusions above**:
+
+1. **Probe A projected the weak channel.** The primary distortion modes are
+   **X5 (amp 0.120 Å) and X3 (0.072 Å) at k = (0,1,0)** — the X point,
+   *commensurate with the conventional cell*; the cell-doubling modes
+   Δ1 (0.021 Å) and W4 (0.026 Å) are ~5× weaker (paper Table II). Our
+   (0,0,½) staggered projection tested the ~0.02 Å Δ1-type channel — below
+   the measured per-config noise floor, so the bulk null result was
+   guaranteed. The X-point primary CAN live inside the single-cell fold:
+   the residual P1 signal at symprec 10⁻³ is the candidate carrier. M3 must
+   project X5/X3 (and W4/Δ1) using the paper's displacement patterns.
+2. **Probe B's "MACE hosts no distorted well" was premature.** The paper's
+   plain-PBE (no SOC/U) Quantum-ESPRESSO relaxation *retains* the distorted
+   P-4̄2₁m structure (Table I: ℓ = 3.129 vs s = 2.927 Å). PBE-level physics
+   hosts the well; probe B only showed the cubic basin extends ≥ 0.02 Å
+   around the near-cubic ensemble average. Retest MACE starting **from the
+   refined tetragonal structure**.
+3. **The 13-meV diagnostic needs reconciling.** Their DFT cubic PDOS
+   notably *lacks* ~13 meV weight (its appearance is the tetragonal
+   fingerprint: 2A₁+2A₂+2B₁+3B₂+4E modes); our MACE **cubic** GDOS shows a
+   13.2 meV (Ga-flavoured) peak. Either MACE softening pulls the cubic
+   15-meV band down, or MACE's cubic spectrum genuinely differs from QE —
+   must be resolved before MACE serves the 13-meV analysis. Their SEQUOIA
+   resolution polynomial (Appendix E) should be applied to all comparisons.
+
+Independent confirmations the blind pipeline got right: measured G(r)
+broader than the cubic quantum model with the strongest residual at
+2.5–4.5 Å = the paper's "cubic fails for r < 5 Å" (two Ta–Ta distances
+2.95/3.06 Å); overall GDOS shape matches their measured/DFT PDOS.
+
 ### Powder degeneracy note (review round 3, 2026-07-19)
 
 The RMC fit is against **powder** data, so the three doubling arms 2×1×1 /

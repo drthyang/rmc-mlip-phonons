@@ -86,11 +86,17 @@ scattering + Bragg + S(Q, ω). "Dynamic EPSR" / "model-space RMC".
 
 ## First demonstration target
 
-GaTa₄Se₈ 5 K: move space = the (0,0,½)-star order-parameter amplitude(s)
-(+ optionally the strain that the cubic RMC box forbids), MLIP dynamics on
-top, χ² = F(Q) + Bragg (superlattice intensities!) + INS. Few-dimensional,
-real data in hand, genuinely open structural question — the ideal paper
-demonstration.
+GaTa₄Se₈ 5 K: move space = the **six irrep amplitudes of Yang et al.,
+PRR 4, 033123 (2022), Table II** — X5 (0.120 Å), X3 (0.072 Å), W4
+(0.026 Å), Δ1 (0.021 Å), Γ1, Γ3 — i.e. the published static mode
+decomposition becomes the refinement coordinates, with MLIP dynamics on
+top and χ² = F(Q) + Bragg (superlattice intensities) + INS (SEQUOIA
+Ei = 60 meV; instrument resolution polynomial in the paper's Appendix E).
+Few-dimensional, all data in hand, and the paper provides the static
+answer to initialize and benchmark against — the ideal demonstration. The
+paper's single-crystal refinement is effectively the *static* version of
+this loop; the addition is joint dynamics (quantum ensemble) + total
+scattering + INS self-consistency.
 
 ## Open questions
 
