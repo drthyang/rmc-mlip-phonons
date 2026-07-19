@@ -14,7 +14,11 @@
       phonopy `band.yaml` + `relaxed.cif` + `summary.json`). Parser and
       circular averaging unit-verified on synthetic wrap-around data.
 
-## In progress — Milestone 1 hardening
+## Done — Milestone 1 hardening
+
+*Green end-to-end on synthetic fcc Cu with EMT and MACE-MP-0 — `pytest -q` is
+44 tests (unit + `slow`/`mace` integration). The one open item before M1 is
+closed on real data is the target RMC dataset run.*
 
 - [x] pytest suite: parser fixtures, circular mean, `--ref` CIF assignment,
       `auto_dim`, mixed-occupancy handling (`tests/`, 21 tests)

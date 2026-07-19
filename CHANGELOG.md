@@ -1,12 +1,46 @@
 # Changelog
 
-## [Unreleased]
+## [0.2.0] — 2026-07-19
+
+Milestone-1 hardening. The pipeline now runs end-to-end against the installed
+ase / spglib / phonopy / MACE stack, with a full test suite and two physics
+fixes that the first real runs surfaced.
+
+### Added
+- `.gitignore` covering ensembles, results, `m1_out*/`, venv, and model weights.
+- `tests/` pytest suite for `milestone1_bands`: rmc6f parser fixtures
+  (with/without site-id columns, bracketed labels, `Cell (Ang/deg)` vs
+  `Lattice vectors` headers, ionic-label element cleaning, missing-section
+  errors), circular-mean wrap-around + supercell folding, `--ref` CIF site
+  assignment, `auto_dim` heuristic, and mixed-occupancy majority reduction.
+  `tests/conftest.py` makes the standalone script importable; `pytest.ini`.
+- `tests/fixtures/make_synthetic_ensemble.py`: deterministic generator of N
+  noisy fcc-Cu `.rmc6f` configs (known answer: 3 acoustic branches, ω → 0 at
+  Γ). Runnable standalone or imported. Tests verify parseability, that folding
+  recovers the ideal 4-site fcc basis, seed-determinism, and the noise-free
+  exact limit.
+- `tests/test_emt_end_to_end.py` (marked `slow`): EMT full-pipeline integration
+  test — asserts all three outputs are written, `relaxed.cif` is cubic Cu,
+  exactly 3 branches vanish at Γ, and no imaginary modes. First run of the
+  ase/spglib/phonopy leg against installed deps (phonopy 4.4, ase 3.29,
+  spglib 2.7).
+- `tests/test_mace_end_to_end.py` (marked `slow` + `mace`): real-dependency
+  integration test running MACE-MP-0 (small, float64) on the fcc-Cu fixture —
+  no imaginary modes (min > −0.05 THz), 3 branches vanishing at Γ, float64.
+  Auto-skips when mace-torch is absent (first run downloads/caches the ~31 MB
+  MACE-MP-0 weights).
+- Ensemble subsampling for large (500+ config) runs: `--stride` (ordered
+  decimation), `--max-configs` (seeded random cap), and `--seed`, via the pure
+  `select_configs` helper. Deterministic; recorded in `summary.json["sampling"]`.
+- `pytest.ini`: `slow` / `mace` markers and filters for benign spglib / phonopy
+  / torch deprecation warnings.
+
 ### Changed
 - Default `--displacement` raised from 0.01 to **0.03 Å**. phonopy's 0.01 Å is
   DFT-tuned; at that distance a universal MLIP's forces sit near the model
   noise floor. In the first real MACE-MP-0 (small) run this produced a spurious
   ~−0.33 THz mode just off Γ for dynamically-stable fcc Cu; 0.03 Å removes it
-  (verified: ASR/`symmetrize_force_constants` does not help, displacement does).
+  (verified: ASR / `symmetrize_force_constants` does not help, displacement does).
 
 ### Fixed
 - **Phonopy used the wrong symmetry tolerance.** `phonopy_bands` now threads
@@ -16,37 +50,6 @@
   fix the fcc primitive is found: 3 acoustic branches, ω → 0 at Γ.
 - Migrated off phonopy's deprecated `get_band_structure_dict()` to the
   `band_structure` property (phonopy ≥4).
-
-### Added
-- Ensemble subsampling for large (500+ config) runs: `--stride` (ordered
-  decimation), `--max-configs` (seeded random cap), and `--seed`, via the pure
-  `select_configs` helper. Fully deterministic; recorded in
-  `summary.json["sampling"]`. 11 unit tests (`tests/test_select_configs.py`).
-- `tests/test_mace_end_to_end.py`: real-dependency integration test running
-  MACE-MP-0 (small, float64) on the fcc-Cu fixture — asserts no imaginary modes
-  (min > −0.05 THz), 3 branches vanishing at Γ, and float64. Marked `slow` +
-  `mace`; auto-skips when mace-torch is absent (first run downloads/caches the
-  ~31 MB weights). `pytest.ini` gains the `mace` marker + torch/mace warning
-  filters.
-- `tests/test_emt_end_to_end.py`: EMT full-pipeline integration test (marked
-  `slow`) on the synthetic fcc-Cu ensemble — asserts all three outputs are
-  written, `relaxed.cif` is cubic Cu, exactly 3 branches vanish at Γ, and no
-  imaginary modes. First run of the ase/spglib/phonopy leg against installed
-  deps (phonopy 4.4, ase 3.29, spglib 2.7). `pytest.ini` gains the `slow`
-  marker and filters for two benign library deprecations.
-- `tests/fixtures/make_synthetic_ensemble.py`: deterministic generator of N
-  noisy fcc-Cu `.rmc6f` configs (known answer: 3 acoustic branches, ω → 0 at
-  Γ). Runnable standalone or imported; `build_supercell` + `make_fcc_cu_ensemble`.
-  Tests verify parseability, that folding recovers the ideal 4-site fcc basis,
-  seed-determinism, and the noise-free exact limit.
-- `tests/` pytest suite (21 tests) for `milestone1_bands`: rmc6f parser
-  fixtures (with/without site-id columns, bracketed labels, `Cell (Ang/deg)`
-  vs `Lattice vectors` headers, ionic-label element cleaning, missing-section
-  errors), circular-mean wrap-around + supercell folding, `--ref` CIF site
-  assignment, `auto_dim` supercell heuristic, and mixed-occupancy majority
-  reduction with reporting. `tests/conftest.py` makes the standalone script
-  importable and provides rmc6f/config builders; `pytest.ini`.
-- `.gitignore` covering ensembles, results, `m1_out*/`, venv, and model weights.
 
 ## [0.1.0] — 2026-07-19
 ### Added
