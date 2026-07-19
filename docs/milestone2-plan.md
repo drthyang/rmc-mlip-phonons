@@ -112,6 +112,61 @@ All MLIP evaluations `default_dtype="float64"`.
    - M3 verdicts then decompose it: which modes carry static (frozen)
      displacement excess vs quantum-dynamic amplitudes.
 
+## Resolved in review, round 2 (2026-07-19)
+
+7. **Low-T structure: P-4̄2₁m with a 1×1×2 doubled cell.** The order
+   parameter therefore lives at **q = (0,0,½)** of the cubic conventional
+   cell — a displacement pattern alternating in sign between adjacent unit
+   cells along one cubic axis. Consequences:
+   - The 8×8×8 RMC box is commensurate with the doubling (8 even): the
+     ensemble *can* express the distortion, per axis, per domain.
+   - A single-conventional-cell fold (52 sites) **cannot** express the
+     primary order parameter (the staggered component cancels): M3 analysis
+     must fold to 1×1×2 (104 sites) and/or use staggered projections.
+   - The M1 F-4̄3m phonon model contains q = (0,0,½) on the Γ–X path (it lies
+     inside the 2×2×2 phonopy supercell) and shows **no soft mode there**.
+8. **This RMC fit used F(Q) + G(r), no Bragg profile** (Bragg intended for a
+   future refit). The ensemble mean is therefore not Bragg-anchored; treat
+   long-range averages accordingly, and prefer a Bragg-included refit before
+   quantitative M3 claims about the *average* structure.
+9. **Distortion driver: correlation/SOC (user's assessment).** A PBE-level
+   foundation MLIP is *not expected* to host the distorted well. Design
+   stance confirmed: MACE = symmetric null model; the distortion is detected
+   from the RMC displacement statistics vs the null model, and **M4 DFT+U/SOC
+   fine-tuning is required** (elevated from optional) for distorted-phase
+   phonons.
+
+## Null-model probe results (2026-07-19, pre-implementation)
+
+Two quick probes run after review (analysis in scratch, not committed):
+
+- **MACE hosts no distorted well** (probe B): the unsymmetrized 493-config
+  ensemble-average (P1) relaxes straight back to F-4̄3m at both the
+  experimental and free lattice, ΔE(P1−sym) = 0.000 meV. Confirms the
+  correlation/SOC assessment — MACE-MP-0 is strictly the symmetric null
+  model; the distortion must be detected from the data side.
+- **The data prefer the distortion** (probe A): projecting each config onto
+  the (0,0,½) staggered order parameter, the ensemble bulk shows no frozen
+  pattern (‖Q‖ at noise level, no χ²-correlation, ensemble mean incoherent —
+  domains/rarity). But the **3 independent chains with the largest staggered
+  amplitude (0.06–0.09 Å; configs 105≡206, 23, 190, all x-axis) are exactly
+  the ensemble's best sustained fits: χ² ≈ 314–374 vs median 705.** RMC only
+  rarely reaches the coherent arrangement (entropic barrier), and when it
+  does, the measured F(Q)+G(r) reward it by ~2× in χ².
+- Ensemble bookkeeping: duplicate chains exist (105/206, 439/404, 459/208 —
+  identical χ² trajectories, likely seed collisions); config 376's final
+  χ² = 123 is a last-report artifact (plateau was ~700); configs
+  280/311/313/316/318/326 are partial runs (0.08–0.5M moves) with truncated
+  χ² files — `--skip-nonconverged` catches only 0-move configs, so consider
+  a stricter move-count / χ²-sanity criterion.
+
+Implications: (i) M3's mode-projected amplitude test has a concrete target —
+quantify the staggered amplitude *distribution* against the quantum-dynamic
+expectation; (ii) recommend an RMC refit **with the Bragg profile** (the
+superlattice peaks constrain the order parameter directly) and/or chains
+seeded from a P-4̄2₁m starting config; (iii) M2 proceeds per plan — closure
+residuals of the cubic null model are now expected to carry the distortion.
+
 ## Still open for review
 
 4. Neutron b_coh values/source to standardize on
@@ -120,6 +175,3 @@ All MLIP evaluations `default_dtype="float64"`.
    or reserve MD for a future higher-T dataset?
 6. hiPhive cutoffs/order for the effective fit (start: 2nd order only,
    cutoff ~6 Å, 2×2×2 supercell of the conventional cell)?
-7. Candidate low-T space group(s) from literature / your diffraction, and
-   whether the RMC fit co-fitted a Bragg profile — both shape the M3
-   symmetry-mode analysis (see questions posed in review).
