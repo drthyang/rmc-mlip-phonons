@@ -42,7 +42,9 @@ converged configs (F-4̄3m, dynamically stable, 39 branches). `pytest -q` is
 
 ## Milestone 2 — finite temperature
 
-- [ ] `docs/milestone2-plan.md` (design first)
+- [x] `docs/milestone2-plan.md` (design first) — **drafted, awaiting review**;
+      key decisions: quantum sampling (not classical MD) at 5 K, closure at
+      the experimental lattice, hiPhive as the shared M2/M3 fitting engine
 - [ ] `md_run.py`: MLIP-MD at experimental T (Langevin → NPT)
 - [ ] closure: G(r) / S(Q) from MD vs measured data
 - [ ] temperature-effective force constants → `band_T.yaml`

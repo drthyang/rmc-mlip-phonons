@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 ### Added
+- `docs/milestone2-plan.md`: milestone-2 design draft (awaiting review).
+  Decisions put forward: harmonic **quantum** sampling instead of classical
+  Langevin MD at 5 K (zero-point-dominated regime), closure computed at the
+  experimental lattice (MACE +1.6 % would shift G(r) peaks), hiPhive as the
+  shared M2/M3 effective-FC engine, native unit-tested G(r)/S(Q) with Rw
+  against the measured `scale_ft_rmc.fq` grid.
 - `--skip-nonconverged`: drop input configs whose rmc6f header reports
   `Number of moves generated: 0` (RMC runs that never started). Cheap
   header-only scan (`read_moves_generated` / `drop_nonconverged`); files
