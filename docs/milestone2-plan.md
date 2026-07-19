@@ -167,6 +167,31 @@ superlattice peaks constrain the order parameter directly) and/or chains
 seeded from a P-4̄2₁m starting config; (iii) M2 proceeds per plan — closure
 residuals of the cubic null model are now expected to carry the distortion.
 
+### Powder degeneracy note (review round 3, 2026-07-19)
+
+The RMC fit is against **powder** data, so the three doubling arms 2×1×1 /
+1×2×1 / 1×1×2 are exactly degenerate. Consequences adopted:
+
+- **The ensemble-average F-4̄3m recovery says nothing about the distortion.**
+  With arm and phase degeneracy, chains order along random arms with random
+  phases, so the grand average restores cubic symmetry *even if every chain
+  were fully ordered*. The average is a pipeline consistency check only; the
+  residual P1 at symprec 10⁻³ likewise cannot contain the primary OP (it
+  cancels) — only Γ/zone-center secondary components or noise.
+- **Only per-config, arm-pooled statistics are meaningful** (probe A's
+  max-over-axes was already the right frame; the proper null is the order
+  statistic of 3 arms — the ~8σ tail survives this correction).
+- **M3 verdicts aggregate the q-star**: report star-summed staggered
+  amplitude vs quantum expectation, never per-arm; powder cannot assign arms.
+- **Within-box domains along different arms are allowed**: add a local /
+  windowed staggered field (or diffuse S(q) near the star) in M3 to measure
+  coherence length — the global single-arm projection undercounts mixed-arm
+  order.
+- **Verified: the shared RMC starting config is perfectly ideal**
+  (GTS_5K_0.rmc6f: σ_site = 0.0000 Å) — the all-x coincidence of the three
+  ordered chains has no structural seed; P = 1/9 by chance, and the arm
+  label carries no physics.
+
 ## Still open for review
 
 4. Neutron b_coh values/source to standardize on
