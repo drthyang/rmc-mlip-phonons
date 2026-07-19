@@ -86,8 +86,16 @@ converged configs (F-4̄3m, dynamically stable, 39 branches). `pytest -q` is
       to kill rounding-borne cross-irrep leakage. Validated: published
       amplitudes reproduced from the printed tables; injected modes
       recovered across arms. (Windowed OP + noise ruler: next.)
-- [ ] real-ensemble projection run: A_m(c) distributions for 490 configs
-      vs published static amplitudes + quantum yardstick → verdicts.json
+- [x] real-ensemble projection run (490 configs, 4 s): **the local
+      structure is X₅-distorted at roughly half the coherent static
+      amplitude (mean 0.056 Å vs published 0.120, distribution reaching
+      0.131), while X₃ is locally absent (0.018 vs published 0.072 — same
+      k-star/subspace as X₅, so noise-immune contrast)**. W₄ at ~published
+      with fat tail; config 190 is a genuinely ordered box (X₅ = 0.110).
+      No ensemble-wide χ²–amplitude correlation. Note: global projection is
+      domain-diluted → 0.056 is a lower bound on the local X₅ amplitude.
+- [ ] windowed/local projections (coherence length; undiluted local X₅),
+      noise ruler + quantum yardstick → verdicts.json
 - [ ] `hiphive_fit.py`: RMC displacement snapshots + MLIP forces →
       effective FCs → bands
 - [ ] mode-projection amplitudes vs (ħ/2ω)coth(ħω/2k_BT); E(Q) mode mapping
