@@ -1,7 +1,22 @@
 # Changelog
 
 ## [Unreleased]
+### Fixed
+- **Phonopy used the wrong symmetry tolerance.** `phonopy_bands` now threads
+  `--symprec` into `Phonopy(...)`; phonopy's default (1e-5) is tighter than the
+  ~fmax residual asymmetry of a relaxed cell, so `primitive_matrix="auto"` read
+  fcc as P1 and produced folded bands (12 modes for Cu instead of 3). With the
+  fix the fcc primitive is found: 3 acoustic branches, ω → 0 at Γ.
+- Migrated off phonopy's deprecated `get_band_structure_dict()` to the
+  `band_structure` property (phonopy ≥4).
+
 ### Added
+- `tests/test_emt_end_to_end.py`: EMT full-pipeline integration test (marked
+  `slow`) on the synthetic fcc-Cu ensemble — asserts all three outputs are
+  written, `relaxed.cif` is cubic Cu, exactly 3 branches vanish at Γ, and no
+  imaginary modes. First run of the ase/spglib/phonopy leg against installed
+  deps (phonopy 4.4, ase 3.29, spglib 2.7). `pytest.ini` gains the `slow`
+  marker and filters for two benign library deprecations.
 - `tests/fixtures/make_synthetic_ensemble.py`: deterministic generator of N
   noisy fcc-Cu `.rmc6f` configs (known answer: 3 acoustic branches, ω → 0 at
   Γ). Runnable standalone or imported; `build_supercell` + `make_fcc_cu_ensemble`.

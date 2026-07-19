@@ -293,7 +293,8 @@ def auto_dim(atoms, target=12.0, max_atoms=800):
     return dim
 
 
-def phonopy_bands(atoms, calc, dim, displacement, npoints, eigenvectors, outdir):
+def phonopy_bands(atoms, calc, dim, displacement, npoints, eigenvectors, outdir,
+                  symprec):
     from phonopy import Phonopy
     from phonopy.structure.atoms import PhonopyAtoms
     from ase import Atoms
@@ -301,8 +302,13 @@ def phonopy_bands(atoms, calc, dim, displacement, npoints, eigenvectors, outdir)
     unit = PhonopyAtoms(symbols=atoms.get_chemical_symbols(),
                         cell=atoms.cell.array,
                         scaled_positions=atoms.get_scaled_positions())
+    # Use the same physical symmetry tolerance as the pre-relax symmetrization.
+    # phonopy's default (1e-5) is tighter than the ~fmax-level numerical noise a
+    # relaxed cell carries, so at 1e-5 an fcc cell can read as P1 and
+    # primitive_matrix="auto" fails to reduce it -> folded bands (e.g. 12 modes
+    # for fcc instead of 3). symprec here recovers the true primitive.
     phonon = Phonopy(unit, supercell_matrix=np.diag(dim),
-                     primitive_matrix="auto")
+                     primitive_matrix="auto", symprec=symprec)
     phonon.generate_displacements(distance=displacement)
     scells = phonon.supercells_with_displacements
     print(f"  {len(scells)} displaced supercells "
@@ -324,8 +330,11 @@ def phonopy_bands(atoms, calc, dim, displacement, npoints, eigenvectors, outdir)
                                with_eigenvectors=eigenvectors,
                                write_yaml=True,
                                filename=str(band_yaml))
-    bs = phonon.get_band_structure_dict()
-    fmin = float(min(np.min(f) for f in bs["frequencies"]))
+    # phonopy >=4 replaces get_band_structure_dict() with the band_structure
+    # property; .frequencies is a per-path-segment list of (npoints, nbands)
+    # arrays in THz.
+    bs = phonon.band_structure
+    fmin = float(min(np.min(f) for f in bs.frequencies))
     return phonon, band_yaml, fmin
 
 
@@ -409,7 +418,7 @@ def main(argv=None):
     print(f"  supercell {dim.tolist()}")
     phonon, band_yaml, fmin = phonopy_bands(
         atoms, calc, dim, args.displacement, args.npoints,
-        not args.no_eigenvectors, outdir)
+        not args.no_eigenvectors, outdir, args.symprec)
 
     print("[5/5] summary")
     stable = fmin > -0.05  # THz; small negative acoustic dips near Gamma are noise
