@@ -325,10 +325,10 @@ def idealize_parent(cubic_frac52, elem52, symprec=0.05):
 def cubic_symmetry_ops(cubic_frac52, elem52, symprec=0.02):
     """Space-group ops of the ideal cubic parent (F-4̄3m), cubic frac frame."""
     import spglib
+    from ase.data import atomic_numbers
 
-    z = {"Ga": 31, "Ta": 73, "Se": 34}
     cell = (np.eye(3), np.asarray(cubic_frac52) % 1.0,
-            [z[e] for e in elem52])
+            [atomic_numbers[e] for e in elem52])
     sym = spglib.get_symmetry(cell, symprec=symprec)
     return list(zip(sym["rotations"], sym["translations"]))
 
