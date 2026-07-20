@@ -394,15 +394,19 @@ def compact_inner(f1, f2, n_cells=512):
     return tot * n_cells / 8.0
 
 
-def parity_sums(unit_frac, sid, ijk, mean_site, a):
+def parity_sums(unit_frac, sid, ijk, mean_site, a, signs=None):
     """Per-config parity-resolved displacement sums S[axis, p, site, 3] (Å).
 
     unit_frac: (N,3) positions folded to the cubic unit cell frame;
     sid: (N,) site ids 1..52; ijk: (N,3) integer cell offsets.
+    signs: optional (N,) ±1 array — the random-sign null (see
+    `random_signs`) multiplies each atom's displacement before summation.
     """
     d = unit_frac - mean_site[sid - 1]
     d -= np.round(d)
     d *= a
+    if signs is not None:
+        d = d * signs[:, None]
     S = np.zeros((3, 2, 52, 3))
     idx = sid - 1
     for ax in range(3):
@@ -456,6 +460,87 @@ def project_all(S, proj):
         a2 = float(x[i0:i1] @ Gmm @ x[i0:i1])
         out[key] = np.sqrt(max(a2, 0.0) / 2048.0)
     return out
+
+
+def window_parity_sums(unit_frac, sid, ijk, mean_site, a, w, signs=None):
+    """Windowed parity-resolved displacement sums.
+
+    Splits the 8×8×8 box into (8/w)³ cubic windows of side `w` cells
+    (w even, so every parity triple is equally represented per window).
+    Returns S_w of shape (n_windows, 3, 2, 52, 3) in Å — the same object
+    `parity_sums` builds, per window. `signs` as in `parity_sums`.
+    """
+    assert 8 % w == 0 and w % 2 == 0, "window side must be even and divide 8"
+    nw = 8 // w
+    d = unit_frac - mean_site[sid - 1]
+    d -= np.round(d)
+    d *= a
+    if signs is not None:
+        d = d * signs[:, None]
+    win = ((ijk[:, 0] // w) * nw + ijk[:, 1] // w) * nw + ijk[:, 2] // w
+    idx = sid - 1
+    S = np.zeros((nw**3, 3, 2, 52, 3))
+    for ax in range(3):
+        par = ijk[:, ax] & 1
+        flat = ((win * 3 + ax) * 2 + par) * 52 + idx
+        for comp in range(3):
+            acc = np.bincount(flat, weights=d[:, comp],
+                              minlength=nw**3 * 3 * 2 * 52)
+            S[:, ax, :, :, comp] = acc.reshape(nw**3, 3, 2, 52)[:, ax]
+    return S
+
+
+def project_all_windows(S_w, proj, w):
+    """Joint per-window amplitudes for every irrep (published convention, Å).
+
+    The window Gram is the global Gram scaled by the cell fraction
+    (w³/512) — valid because even-sided windows sample every parity sector
+    uniformly. Normalization uses the window's own primitive count 4w³, so
+    a coherently ordered window reads the published amplitude regardless
+    of window size. Returns {mode_key: (n_windows,) array}.
+    """
+    frac = w**3 / 512.0
+    gram = proj["gram"] * frac
+    gram_pinv = np.linalg.pinv(gram, rcond=1e-6)
+    nprim = 4.0 * w**3
+    out = {k: np.zeros(len(S_w)) for k in proj["keys"]}
+    for iw, S in enumerate(S_w):
+        q = np.array([float((G * S[ax].transpose(1, 0, 2)).sum())
+                      for ax, G in proj["variants"]])
+        x = gram_pinv @ q
+        for key, (i0, i1) in proj["blocks"].items():
+            a2 = float(x[i0:i1] @ gram[i0:i1, i0:i1] @ x[i0:i1])
+            out[key][iw] = np.sqrt(max(a2, 0.0) / nprim)
+    return out
+
+
+def shuffle_cells(unit_frac, sid, ijk, rng):
+    """Coherence DIAGNOSTIC (not a full noise floor): permute cell indices
+    independently per site.
+
+    Destroys inter-cell correlations only. An X-point pattern is constant
+    across conventional cells (it lives inside the cell), so it SURVIVES
+    this shuffle exactly, while Δ/W-type (cell-alternating) coherence is
+    destroyed — the difference measured/shuffled therefore separates
+    intra-cell from inter-cell coherence. Returns a shuffled ijk array.
+    """
+    ijk2 = ijk.copy()
+    for s in range(1, 53):
+        m = np.where(sid == s)[0]
+        ijk2[m] = ijk[m][rng.permutation(len(m))]
+    return ijk2
+
+
+def random_signs(n, rng):
+    """The universal noise null: ±1 per atom.
+
+    Multiplying displacements by random signs destroys EVERY coherent
+    pattern (intra-cell and inter-cell alike) while preserving each site's
+    displacement-magnitude distribution — the incoherent pedestal every
+    channel's amplitude must be measured against. Pass to `parity_sums` /
+    `window_parity_sums` via `signs`.
+    """
+    return rng.choice([-1.0, 1.0], size=n)
 
 
 def load_rmc_config(path: Path, n_header_stop: str = "atoms"):

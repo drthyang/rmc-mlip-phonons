@@ -144,3 +144,94 @@ def test_injected_mode_recovered_across_axes(setup, projector):
 def test_variant_ranks_positive(projector):
     assert projector["rank"] >= 6
     assert len(projector["variants"]) >= projector["rank"]
+
+
+# ---------------------------------------------------------------- windows
+
+def _synthetic_box(setup, field_fn):
+    """Explicit (unit_frac, sid, ijk) arrays for an 8×8×8 box whose
+    displacement field is field_fn(site_index, i, j, k) -> (3,) Å."""
+    ref, frac52, *_ = setup
+    a = A_CUB
+    sid, ijk, unit = [], [], []
+    for i in range(8):
+        for j in range(8):
+            for k in range(8):
+                for s in range(52):
+                    sid.append(s + 1)
+                    ijk.append((i, j, k))
+                    unit.append(frac52[s] + field_fn(s, i, j, k) / a)
+    return (np.array(unit) % 1.0, np.array(sid), np.array(ijk, dtype=int),
+            frac52)
+
+
+def _x5_variant_z(projector, target=0.10):
+    """An X5 variant with doubling axis z, scaled to `target` Å (published
+    convention)."""
+    i0, i1 = projector["blocks"]["X5"]
+    var = next(v for v in projector["variants"][i0:i1] if v[0] == 2)
+    lam = target * np.sqrt(2048.0 / mp.compact_inner(var, var))
+    return var, lam
+
+
+def test_windowed_matches_global_for_coherent_field(setup, projector):
+    """A fully coherent X5 box reads the same amplitude at every window
+    scale (normalization is scale-invariant)."""
+    var, lam = _x5_variant_z(projector, target=0.10)
+    ax, G = var
+
+    unit, sid, ijk, frac52 = _synthetic_box(
+        setup, lambda s, i, j, k: lam * G[s, (i, j, k)[ax] & 1])
+    for w in (2, 4, 8):
+        S_w = mp.window_parity_sums(unit, sid, ijk, frac52, A_CUB, w)
+        out = mp.project_all_windows(S_w, projector, w)
+        assert out["X5"].mean() == pytest.approx(0.10, rel=0.05), (w,
+                                                                   out["X5"])
+
+
+def test_domain_structure_detected_by_windows(setup, projector):
+    """Two anti-phase X5 domains (z-halves of the box): the global
+    projection cancels, matched windows read the full amplitude."""
+    var, lam = _x5_variant_z(projector, target=0.10)
+    ax, G = var
+
+    def field(s, i, j, k):
+        sign = 1.0 if k < 4 else -1.0
+        return sign * lam * G[s, (i, j, k)[ax] & 1]
+
+    unit, sid, ijk, frac52 = _synthetic_box(setup, field)
+    S = mp.parity_sums(unit, sid, ijk, frac52, A_CUB)
+    global_amp = mp.project_all(S, projector)["X5"]
+    assert global_amp < 0.02          # anti-phase halves cancel
+
+    S_w = mp.window_parity_sums(unit, sid, ijk, frac52, A_CUB, 4)
+    out = mp.project_all_windows(S_w, projector, 4)
+    # every 4-cell window lies inside one domain -> full local amplitude
+    assert out["X5"].mean() == pytest.approx(0.10, rel=0.06), out["X5"]
+
+
+def test_noise_nulls_have_the_right_selectivity(setup, projector):
+    """The two nulls behave as designed on a coherent X5 box:
+
+    - random SIGN flip kills every coherent channel (the universal noise
+      floor): X5 collapses to the pedestal;
+    - cell SHUFFLE preserves X5 exactly (an X-point pattern is constant
+      across cells — it is a coherence *diagnostic*, not a noise floor).
+    """
+    var, lam = _x5_variant_z(projector, target=0.10)
+    ax, G = var
+    unit, sid, ijk, frac52 = _synthetic_box(
+        setup, lambda s, i, j, k: lam * G[s, (i, j, k)[ax] & 1])
+    rng = np.random.default_rng(0)
+
+    # universal null: random signs -> pedestal (~target/sqrt(512), pooled)
+    signs = mp.random_signs(len(sid), rng)
+    S = mp.parity_sums(unit, sid, ijk, frac52, A_CUB, signs=signs)
+    killed = mp.project_all(S, projector)["X5"]
+    assert killed < 0.04, killed
+
+    # diagnostic: cell shuffle preserves the X-point (intra-cell) pattern
+    ijk_sh = mp.shuffle_cells(unit, sid, ijk, rng)
+    S2 = mp.parity_sums(unit, sid, ijk_sh, frac52, A_CUB)
+    kept = mp.project_all(S2, projector)["X5"]
+    assert kept == pytest.approx(0.10, rel=0.05), kept
