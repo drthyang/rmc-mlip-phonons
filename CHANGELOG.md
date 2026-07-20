@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 ### Added
+- **Milestone 3 complete.** `hiphive_fit.py` (RMC snapshots + MLIP forces →
+  `band_rmc.yaml` + `fit_report.json`; general geometry mapping, cached
+  forces, `--exclude` filter) and `verdicts.py` (tested assembly of
+  `verdicts.json` + the E(Q) pattern→branch mapping). GTS results: the
+  experiment-constrained effective bands soften by −0.10 THz on average vs
+  the harmonic null with no X-point instability (shallow incommensurate
+  dips at the fit-noise scale only); the E(Q) mapping shows the X₅/W₄
+  frozen patterns spread over many cubic branches (max overlap ~0.10)
+  while Γ₁ is cleanly carried (0.88) — the 13-meV fingerprint requires the
+  distorted-phase model (M4). ω fields written into verdicts.json.
 - **First `verdicts.json` (schema v0.1)** — the milestone-3 sidecar for the
   viewer, from the full measurement chain: star-pooled joint projections of
   490 configs at window scales 2/4/8 cells, random-sign noise null,

@@ -106,10 +106,26 @@ converged configs (F-4̄3m, dynamically stable, 39 branches). `pytest -q` is
       X₃ 1.37 dynamic, Δ 0.79 dynamic (*Γ reference caveat). All channels
       drop to ~0.6–0.75 globally: local static order at 20–40 Å, domain-
       cancelled at box scale — the order–disorder picture, mode-resolved.**
-- [ ] `hiphive_fit.py`: RMC displacement snapshots + MLIP forces →
-      effective FCs → bands
-- [ ] mode-projection amplitudes vs (ħ/2ω)coth(ħω/2k_BT); E(Q) mode mapping
-- [ ] emit `verdicts.json` (per-mode static/dynamic badges)
+- [x] `hiphive_fit.py`: RMC displacement snapshots + MLIP forces →
+      effective FCs → `band_rmc.yaml` sidecar. GTS run (8 instantaneous
+      boxes, `--exclude AVERAGE`): **mean softening −0.10 THz vs the
+      harmonic null** (−0.22 on a disjoint snapshot set — stable), max
+      shift ~1 THz; shallow instabilities (≥ −0.29 THz) only at
+      incommensurate ⟨112⟩-like q, at the fit-noise scale — **no X-point
+      well emerges**: RMC sampling reweights the MACE surface but cannot
+      inject the well it lacks (consistent with probe D / SOC tiering).
+      Caveat: config 326 (partial run) was 1 of 8 snapshots.
+- [x] mode-projection amplitudes vs (ħ/2ω)coth(ħω/2k_BT) — done via the
+      quantum baseline through the identical projector (see verdicts)
+- [x] E(Q) mode mapping: irrep patterns → null-model phonon branches over
+      the full k-stars. Γ₁ cleanly carried (0.88 on the 8.3 THz breathing
+      branch); **X₅/W₄ spread over many branches (max overlap ~0.10)** —
+      the frozen pattern is not a cubic eigenmode; the 13-meV fingerprint
+      requires the distorted-phase (M4 fine-tuned) model. ω fields written
+      into verdicts.json (omega_source = mace-null).
+- [x] emit `verdicts.json` (per-mode static/dynamic badges) — **M3
+      COMPLETE** (this repo's side; viewer overlay tracked in
+      `rmc-phonon-dynamics`)
 - [ ] viewer-side overlay + badge panels (tracked in `rmc-phonon-dynamics`)
 
 ## Vision — model-space RMC / "dynamic EPSR" (concept, post-M3)

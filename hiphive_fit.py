@@ -175,6 +175,9 @@ def bands_from_fcp(fcp, unit_atoms, band_dim, npoints, symprec, outpath):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("inputs", nargs="+")
+    ap.add_argument("--exclude", default=None,
+                    help="drop input files whose NAME matches this regex "
+                    "(e.g. AVERAGE to keep only instantaneous configs)")
     ap.add_argument("--skip-nonconverged", action="store_true")
     ap.add_argument("--nconfigs", type=int, default=8,
                     help="snapshots used for the fit (seeded random subset)")
@@ -196,7 +199,12 @@ def main(argv=None):
     outdir = args.outdir
     outdir.mkdir(parents=True, exist_ok=True)
 
+    import re as _re
     files = m1.collect_inputs(args.inputs)
+    if args.exclude:
+        n0 = len(files)
+        files = [f for f in files if not _re.search(args.exclude, f.name)]
+        print(f"  --exclude {args.exclude!r}: {n0} -> {len(files)} files")
     if args.skip_nonconverged:
         files, dropped = m1.drop_nonconverged(files)
         if dropped:
