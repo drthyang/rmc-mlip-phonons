@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 ### Added
+- **First `verdicts.json` (schema v0.1)** — the milestone-3 sidecar for the
+  viewer, from the full measurement chain: star-pooled joint projections of
+  490 configs at window scales 2/4/8 cells, random-sign noise null,
+  quantum-harmonic baseline sampled on the full 26,624-atom box through
+  the identical projector (u_rms 0.0693 Å, matching M2 independently), and
+  the three-component expectation r = A²_meas/[A²_qh + f_noise·A²_null]
+  (f_noise = 0.82 measured). Verdicts at w=4: X₅/W₄/Γ₃/Γ₁ **mixed**
+  (local static+dynamic order at 20–40 Å, domain-cancelled globally),
+  X₃/Δ **dynamic**. Windowed machinery (`window_parity_sums`,
+  `project_all_windows`) + nulls with tested selectivity (cell-shuffle
+  preserves X-point channels exactly — diagnostic, not a noise floor).
 - `reference/gts_mode_patterns.json` + `reference/ingest_sm_tables.py`:
   the PRR 4, 033123 supplemental Tables II–X (refined structures, total
   10 K displacement, and the six irrep patterns Γ₁/Γ₃/Δ/X₃/X₅/W₄) extracted

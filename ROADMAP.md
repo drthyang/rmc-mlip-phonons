@@ -94,8 +94,18 @@ converged configs (F-4̄3m, dynamically stable, 39 branches). `pytest -q` is
       with fat tail; config 190 is a genuinely ordered box (X₅ = 0.110).
       No ensemble-wide χ²–amplitude correlation. Note: global projection is
       domain-diluted → 0.056 is a lower bound on the local X₅ amplitude.
-- [ ] windowed/local projections (coherence length; undiluted local X₅),
-      noise ruler + quantum yardstick → verdicts.json
+- [x] windowed/local projections + nulls + quantum yardstick →
+      **first `verdicts.json` (schema v0.1) emitted.** Corrected method:
+      the cross-channel raw-amplitude comparison was invalid (channel
+      pedestals differ 3×); verdicts use the three-component expectation
+      r = A²_meas / [A²_qh + f_noise·A²_null] with f_noise = 0.82 measured
+      (σ_tot 0.095 vs σ_qh 0.040), the quantum baseline sampled on the
+      full 26,624-atom box through the identical projector (u_rms 0.0693 Å
+      = the M2 value, independent cross-check). **Verdicts (w=4, ~41 Å):
+      X₅ 2.19 mixed, W₄ 2.50 mixed, Γ₃ 2.38 mixed*, Γ₁ 1.69 mixed*,
+      X₃ 1.37 dynamic, Δ 0.79 dynamic (*Γ reference caveat). All channels
+      drop to ~0.6–0.75 globally: local static order at 20–40 Å, domain-
+      cancelled at box scale — the order–disorder picture, mode-resolved.**
 - [ ] `hiphive_fit.py`: RMC displacement snapshots + MLIP forces →
       effective FCs → bands
 - [ ] mode-projection amplitudes vs (ħ/2ω)coth(ħω/2k_BT); E(Q) mode mapping
