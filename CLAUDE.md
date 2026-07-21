@@ -23,7 +23,9 @@ amplitudes.
 - Always emit `relaxed.cif` — it is the viewer's displacement reference.
 - `default_dtype="float64"` for every MLIP force/phonon evaluation.
 - `data/`, `results/`, `m1_out*/` are git-ignored; never commit ensembles,
-  trajectories, or model weights.
+  trajectories, or model weights. Exception: `releases/<dataset>/` holds
+  deliberately published viewer-facing outputs (band yamls, verdicts.json,
+  CIFs, mode files + a README) — copied there explicitly, never automatically.
 - Units are Å, eV, THz (phonopy defaults); state units in every docstring.
 
 ## Current state

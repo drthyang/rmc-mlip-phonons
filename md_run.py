@@ -244,7 +244,12 @@ def build_structure(args, calc):
         atoms = ase_read(str(args.cif))
         print(f"  structure from {args.cif}: {len(atoms)} atoms")
     else:
+        import re as _re
         files = m1.collect_inputs(args.inputs)
+        if args.exclude:
+            n0 = len(files)
+            files = [f for f in files if not _re.search(args.exclude, f.name)]
+            print(f"  --exclude {args.exclude!r}: {n0} -> {len(files)} files")
         if args.skip_nonconverged:
             files, dropped = m1.drop_nonconverged(files)
             if dropped:
@@ -431,6 +436,9 @@ def main(argv=None):
     ap.add_argument("--cif", type=Path, default=None,
                     help="skip folding; use this structure as the unit cell")
     ap.add_argument("--ref", type=Path, default=None)
+    ap.add_argument("--exclude", default=None,
+                    help="drop input files whose NAME matches this regex "
+                    "(e.g. AVERAGE to keep only instantaneous configs)")
     ap.add_argument("--skip-nonconverged", action="store_true")
     ap.add_argument("--stride", type=int, default=1)
     ap.add_argument("--max-configs", type=int, default=None)

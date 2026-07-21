@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 ### Added
+- **`releases/gts_5k/`** — the committed viewer bundle (documented CLAUDE.md
+  exception to the results-are-ignored rule): all three band files with
+  standard-path eigenvectors (`band.yaml` harmonic, `band_T.yaml`
+  quantum-effective, `band_rmc.yaml` experiment-constrained; max
+  band_T-vs-band_rmc difference 1.03 THz), both CIF references, the mode
+  files (`modes_irrep.yaml` compact + `modes_irrep_112.yaml` Γ-folded),
+  seven animated `.xyz` trajectories, `verdicts.json`, and the provenance
+  JSONs, with a README describing each file and its caveats. `md_run.py`
+  gains `--exclude` (band_T regenerated instantaneous-only, with
+  eigenvectors).
 - **Milestone 3 complete.** `hiphive_fit.py` (RMC snapshots + MLIP forces →
   `band_rmc.yaml` + `fit_report.json`; general geometry mapping, cached
   forces, `--exclude` filter) and `verdicts.py` (tested assembly of
