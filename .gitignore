@@ -3,6 +3,7 @@
 # Ensembles, trajectories, results, model weights — never committed (see CLAUDE.md)
 data/
 results/
+releases/
 m1_out*/
 *.rmc6f
 *.traj

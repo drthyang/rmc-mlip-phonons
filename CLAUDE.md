@@ -22,10 +22,12 @@ amplitudes.
   (`verdicts.json`), never by mutating `band.yaml`.
 - Always emit `relaxed.cif` — it is the viewer's displacement reference.
 - `default_dtype="float64"` for every MLIP force/phonon evaluation.
-- `data/`, `results/`, `m1_out*/` are git-ignored; never commit ensembles,
-  trajectories, or model weights. Exception: `releases/<dataset>/` holds
-  deliberately published viewer-facing outputs (band yamls, verdicts.json,
-  CIFs, mode files + a README) — copied there explicitly, never automatically.
+- `data/`, `results/`, `releases/`, `m1_out*/` are git-ignored; **never commit
+  ensembles, trajectories, results, or model weights — the data stays
+  private.** `releases/<dataset>/` is the local viewer bundle (band yamls,
+  verdicts.json, CIFs, mode files + a README): assembled on disk for the
+  viewer to load, never pushed. No exceptions — a bundle was briefly
+  committed on 2026-07-20 and purged from history on 2026-07-21.
 - Units are Å, eV, THz (phonopy defaults); state units in every docstring.
 
 ## Current state
