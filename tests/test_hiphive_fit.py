@@ -72,6 +72,10 @@ def test_emt_end_to_end_fit(tmp_path):
              "--cutoff", "4.2", "--band-dim", "3", "3", "3",
              "--npoints", "11", "-o", str(out)])
     assert (out / "band_rmc.yaml").is_file()
+    # eigenvectors written by default (same convention as M1 band.yaml)
+    import yaml as _yaml
+    band = _yaml.safe_load((out / "band_rmc.yaml").read_text())
+    assert "eigenvector" in band["phonon"][0]["band"][0]
     rep = json.loads((out / "fit_report.json").read_text())
     assert rep["n_snapshots"] == 6
     # the rmse floor is the ANHARMONIC force component (~Phi3*sigma^2),

@@ -151,8 +151,12 @@ def fit_effective_fcs(structures, ideal, unit_atoms, cutoff):
     return fcp, report
 
 
-def bands_from_fcp(fcp, unit_atoms, band_dim, npoints, symprec, outpath):
-    """Render band_rmc.yaml from the fitted FCP on a small supercell."""
+def bands_from_fcp(fcp, unit_atoms, band_dim, npoints, symprec, outpath,
+                   eigenvectors=True):
+    """Render band_rmc.yaml from the fitted FCP on a small supercell.
+
+    eigenvectors=True (default) writes the complex eigenvectors along the
+    standard path — the same convention as milestone-1 band.yaml."""
     from ase import Atoms
     from phonopy import Phonopy
     from phonopy.structure.atoms import PhonopyAtoms
@@ -166,8 +170,8 @@ def bands_from_fcp(fcp, unit_atoms, band_dim, npoints, symprec, outpath):
     sc_ase = Atoms(symbols=sc.symbols, scaled_positions=sc.scaled_positions,
                    cell=sc.cell, pbc=True)
     ph.force_constants = fcp.get_force_constants(sc_ase).get_fc_array(order=2)
-    ph.auto_band_structure(npoints=npoints, write_yaml=True,
-                           filename=str(outpath))
+    ph.auto_band_structure(npoints=npoints, with_eigenvectors=eigenvectors,
+                           write_yaml=True, filename=str(outpath))
     freqs = np.concatenate([f.ravel() for f in ph.band_structure.frequencies])
     return ph, freqs
 
@@ -192,6 +196,8 @@ def main(argv=None):
     ap.add_argument("--fmax", type=float, default=1e-3)
     ap.add_argument("--band-dim", type=int, nargs=3, default=(2, 2, 2))
     ap.add_argument("--npoints", type=int, default=51)
+    ap.add_argument("--no-eigenvectors", action="store_true",
+                    help="omit eigenvectors (much smaller band_rmc.yaml)")
     ap.add_argument("--symprec", type=float, default=0.1)
     ap.add_argument("-o", "--outdir", type=Path, default=Path("m3_out"))
     args = ap.parse_args(argv)
@@ -244,7 +250,8 @@ def main(argv=None):
     fcp, report = fit_effective_fcs(structures, ideal, ref_atoms, args.cutoff)
     band_path = outdir / "band_rmc.yaml"
     ph_eff, f_eff = bands_from_fcp(fcp, ref_atoms, args.band_dim,
-                                   args.npoints, args.symprec, band_path)
+                                   args.npoints, args.symprec, band_path,
+                                   eigenvectors=not args.no_eigenvectors)
 
     # harmonic comparison with the same MLIP/reference
     import md_run as m2

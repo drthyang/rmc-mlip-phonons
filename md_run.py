@@ -374,9 +374,10 @@ def md_snapshots(atoms, calc, dim, temperature, timestep_fs, n_steps,
 # ----------------------------------------------------------------------------
 
 def effective_bandT(phonon, atoms_unit, snapshots, forces, ideal, cutoff,
-                    npoints, outpath, symprec):
+                    npoints, outpath, symprec, eigenvectors=True):
     """Fit 2nd-order effective FCs to (displacement, force) pairs; write
-    band_T.yaml. Returns max |ω_T − ω_harmonic| over the band path, THz."""
+    band_T.yaml (with eigenvectors along the standard path by default).
+    Returns max |ω_T − ω_harmonic| over the band path, THz."""
     from hiphive import ClusterSpace, StructureContainer, ForceConstantPotential
     from hiphive.utilities import prepare_structures
     from trainstation import Optimizer
@@ -406,8 +407,8 @@ def effective_bandT(phonon, atoms_unit, snapshots, forces, ideal, cutoff,
     ph_T = Phonopy(unit, supercell_matrix=np.diag(dim),
                    primitive_matrix="auto", symprec=symprec)
     ph_T.force_constants = fc2
-    ph_T.auto_band_structure(npoints=npoints, write_yaml=True,
-                             filename=str(outpath))
+    ph_T.auto_band_structure(npoints=npoints, with_eigenvectors=eigenvectors,
+                             write_yaml=True, filename=str(outpath))
     phonon.auto_band_structure(npoints=npoints)
     f_h = np.concatenate([f.ravel() for f in phonon.band_structure.frequencies])
     f_t = np.concatenate([f.ravel() for f in ph_T.band_structure.frequencies])
