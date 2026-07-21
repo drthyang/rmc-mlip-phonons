@@ -1,6 +1,18 @@
 # Changelog
 
 ## [Unreleased]
+### Verified
+- **Cross-repo units audit vs phonopy defaults (2026-07-21)**: this repo is
+  clean — frequencies are THz everywhere via phonopy's default factor
+  √(eV/amu)/Å/2π = 15.63330 (never overridden), THz↔meV uses 4.135667696
+  matching phonopy's constant, quantum sampling and thermal displacements go
+  through phonopy's own machinery (Å²), hiPhive force constants are eV/Ų,
+  and the released band yamls carry THz as documented (26 items verified by
+  computation, 0 defects). The companion viewer's unit handling was fixed in
+  `rmc-phonon-dynamics` commit 138837d (band.yaml THz→meV on load,
+  mass-weighted eigenvector convention, q·(n+τ) Bloch phase, `labels:`
+  parsing, THz exports with a self-describing `frequency_unit:` key).
+
 ### Added
 - **`releases/gts_5k/`** — the committed viewer bundle (documented CLAUDE.md
   exception to the results-are-ignored rule): all three band files with
