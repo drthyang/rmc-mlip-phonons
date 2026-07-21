@@ -108,14 +108,17 @@ def bloch_eigenvector(F104, pos_cart, masses, q_conv, a=A_CUB):
 
 
 def emit_yaml(entries, elem52, frac52, a, path: Path):
-    """Write the band.yaml-schema file (plain text, no yaml lib needed)."""
+    """Write the band.yaml-schema file (plain text, no yaml lib needed).
+
+    `a` is either a scalar (cubic lattice a·I) or a full (3,3) lattice."""
     from ase.data import atomic_masses, atomic_numbers
 
+    lattice = np.eye(3) * a if np.isscalar(a) else np.asarray(a)
     L = []
     L.append(f"nqpoint: {len(entries)}")
     L.append(f"natom: {len(elem52)}")
     L.append("lattice:")
-    for row in np.eye(3) * a:
+    for row in lattice:
         L.append(f"- [ {row[0]:20.15f}, {row[1]:20.15f}, {row[2]:20.15f} ]")
     L.append("points:")
     for el, x in zip(elem52, frac52):
@@ -161,7 +164,7 @@ def main(argv=None):
     fields, pos_cart, slab_elem, aligned52, elem52 = build_patterns(
         args.ensemble, cfg)
 
-    from ase.data import atomic_masses, atomic_numbers
+    from ase.data import atomic_masses, atomic_numbers  # noqa: F401 (main scope)
     masses52 = np.array([atomic_masses[atomic_numbers[e]] for e in elem52])
 
     freqs = {}
@@ -195,7 +198,31 @@ def main(argv=None):
 
     yaml_path = args.outdir / "modes_irrep.yaml"
     emit_yaml(entries, elem52, aligned52, A_CUB, yaml_path)
-    print(f"wrote {yaml_path}")
+    print(f"wrote {yaml_path} (compact: cubic cell, doubling in q)")
+
+    # ---- Γ-folded 1x1x2 supercell representation ------------------------
+    # Viewers that draw only the base cell and ignore Bloch phases (the
+    # rmc-phonon-dynamics animator among them) need the doubling explicit:
+    # the 104-atom tetragonal cell with every mode at q = 0 and the
+    # inter-cell alternation baked into a purely real eigenvector.
+    slab_frac = np.array([[*aligned52[i % 52][:2],
+                           (aligned52[i % 52][2] + i // 52) / 2.0]
+                          for i in range(104)])
+    masses104 = np.array([atomic_masses[atomic_numbers[e]]
+                          for e in slab_elem])
+    entries112 = []
+    for e_c, (key, F) in zip(entries, fields.items()):
+        V = np.sqrt(masses104)[:, None] * F
+        V = (V / np.linalg.norm(V)).astype(complex)
+        entries112.append({"q": [0.0, 0.0, 0.0], "distance": e_c["distance"],
+                           "label": f"{key} (1x1x2 Gamma-folded; "
+                                    f"star arm {e_c['q']})",
+                           "frequency": e_c["frequency"],
+                           "eigenvector": V})
+    yaml112 = args.outdir / "modes_irrep_112.yaml"
+    emit_yaml(entries112, slab_elem, slab_frac,
+              np.diag([A_CUB, A_CUB, 2 * A_CUB]), yaml112)
+    print(f"wrote {yaml112} (explicit 1x1x2 cell, all modes at Gamma)")
 
     # extended-XYZ animations of the 104-atom cell
     from ase import Atoms

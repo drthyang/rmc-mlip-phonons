@@ -77,6 +77,49 @@ def test_gamma_pattern_is_real_and_x_pattern_captured(emitted):
     assert w > 0.8
 
 
+def test_gamma_folded_112_representation(emitted):
+    """The 1x1x2 file: explicit 104-atom tetragonal cell, every mode at
+    Γ with a purely real unit-norm eigenvector — the form Bloch-phase-less
+    viewers animate correctly."""
+    import yaml
+
+    d = yaml.safe_load((emitted / "modes_irrep_112.yaml").read_text())
+    assert d["natom"] == 104
+    lat = np.array(d["lattice"])
+    np.testing.assert_allclose(
+        lat, np.diag([em.A_CUB, em.A_CUB, 2 * em.A_CUB]))
+    assert len(d["phonon"]) == 7
+    for p in d["phonon"]:
+        assert p["q-position"] == [0.0, 0.0, 0.0]
+        ev = np.array(p["band"][0]["eigenvector"])   # (104, 3, 2)
+        assert ev.shape == (104, 3, 2)
+        assert np.abs(ev[..., 1]).max() < 1e-12      # purely real at Γ
+        assert np.linalg.norm(ev[..., 0]) == pytest.approx(1.0, abs=1e-6)
+
+
+def test_112_w4_alternates_between_z_cells(emitted):
+    """W4 is a cell-doubling mode: in the folded representation the two
+    z-halves of the tetragonal cell carry opposite displphase — verified by
+    comparing eigenvector blocks of paired atoms (i, i+52)."""
+    import yaml
+
+    d = yaml.safe_load((emitted / "modes_irrep_112.yaml").read_text())
+    by = {p["label"].split()[0]: p for p in d["phonon"]}
+    ev = np.array(by["W4"]["band"][0]["eigenvector"])[..., 0]  # (104, 3)
+    top, bot = ev[:52], ev[52:]
+    # anti-phase: top ≈ -bot for a pure z-doubling pattern
+    anti = np.linalg.norm(top + bot) / np.linalg.norm(ev)
+    sym = np.linalg.norm(top - bot) / np.linalg.norm(ev)
+    assert anti < 0.3 and sym > 0.9, (anti, sym)
+    # while X5 (X-point, parity-even) has nearly identical halves — the
+    # printed tables carry a small (~16 % amplitude, ~3 % power) z-odd
+    # admixture between the two inequivalent cluster layers (c/c'), so the
+    # halves are close but not exact
+    ev5 = np.array(by["X5"]["band"][0]["eigenvector"])[..., 0]
+    same = np.linalg.norm(ev5[:52] - ev5[52:]) / np.linalg.norm(ev5)
+    assert same < 0.25, same
+
+
 def test_animations_written(emitted):
     xyz = sorted(emitted.glob("*.xyz"))
     assert len(xyz) == 7
