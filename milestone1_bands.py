@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """milestone1_bands.py — correct phonon bands from an RMC ensemble via a foundation MLIP.
 
-Pipeline (milestone 1 of the rmc-mlip-phonons project):
+Pipeline (milestone 1 of the mlip-dynamic-refinement project):
 
     .rmc6f ensemble  ->  fold + circular-average to one unit cell
                      ->  (optional) spglib symmetrization
@@ -9,10 +9,9 @@ Pipeline (milestone 1 of the rmc-mlip-phonons project):
                      ->  phonopy finite displacements
                      ->  band.yaml (+ relaxed.cif + summary.json)
 
-The band.yaml is phonopy-standard and loads directly in the
-rmc-phonon-dynamics web viewer next to the covariance-derived bands.
-The relaxed.cif is intended as the app's future "CIF equilibrium
-reference" for displacement analysis.
+The band.yaml is phonopy-standard and loads directly in viewer/ (and in any
+phonopy-aware tool). The relaxed.cif is the equilibrium reference for
+displacement analysis.
 
 Usage examples:
     python milestone1_bands.py run_dir/                 # all *.rmc6f in dir
@@ -255,6 +254,67 @@ def symmetrize(atoms, symprec):
     return Atoms(numbers=nums, scaled_positions=pos, cell=lat, pbc=True)
 
 
+def symmetrize_lattice(atoms, symprec):
+    """Snap the cell metric onto its exact space-group symmetry.
+
+    A relaxed cell carries ~fmax-level numerical noise in its lattice vectors
+    (order 1e-5 Å). That is harmless for the force constants, but it breaks
+    the band path: ``Phonopy.auto_band_structure()`` takes no ``symprec`` and
+    seekpath therefore runs at its hard-coded 1e-5, so a cubic cell can be
+    classified as triclinic (P1) and the "standard path" becomes the aP one —
+    wrong labels, and the path never visits the real high-symmetry points.
+
+    The metric tensor g = A·Aᵀ (Å²) obeys Rᵀ g R = g for every fractional
+    rotation R of the true space group, so the noise is removed by averaging
+    g over the group. The cell is then rebuilt as A' = S·A with
+    S = g_sym^{1/2}·g^{-1/2}, which reproduces g_sym exactly (S g Sᵀ = g_sym)
+    and reduces to the identity as g → g_sym, so the Cartesian frame is
+    preserved. Fractional coordinates, atom order and atom count are
+    untouched — nothing downstream that indexes atoms can be disturbed.
+
+    Parameters
+    ----------
+    atoms : ase.Atoms
+        Cell to idealize (modified copy returned).
+    symprec : float
+        Tolerance handed to spglib when finding the rotations, Å.
+
+    Returns
+    -------
+    atoms_sym : ase.Atoms
+        Copy with the symmetrized cell; scaled positions identical.
+    report : dict
+        ``max_lattice_shift_A`` (largest change in any lattice-vector
+        component) and ``n_operations`` used. Both are zero/1 when spglib
+        finds no symmetry, in which case the cell is returned unchanged.
+    """
+    import spglib
+
+    A = np.asarray(atoms.cell.array, dtype=float)
+    frac = atoms.get_scaled_positions()
+    cell = (A, frac, atoms.get_atomic_numbers())
+    sym = spglib.get_symmetry(cell, symprec=symprec)
+    if sym is None or len(sym["rotations"]) == 0:
+        return atoms.copy(), {"max_lattice_shift_A": 0.0, "n_operations": 0}
+
+    rots = np.asarray(sym["rotations"], dtype=float)
+    g = A @ A.T
+    g_sym = np.einsum("nji,jk,nkl->il", rots, g, rots) / len(rots)
+
+    def _spd_pow(m, p):
+        w, v = np.linalg.eigh(m)
+        return (v * np.power(np.maximum(w, 1e-300), p)) @ v.T
+
+    S = _spd_pow(g_sym, 0.5) @ _spd_pow(g, -0.5)
+    A_sym = S @ A
+
+    out = atoms.copy()
+    out.set_cell(A_sym)
+    out.set_scaled_positions(frac)
+    return out, {"max_lattice_shift_A": float(np.abs(A_sym - A).max()),
+                 "n_operations": int(len(rots))}
+
+
 def get_calculator(name, device, model_size):
     if name == "mace":
         from mace.calculators import mace_mp
@@ -299,6 +359,13 @@ def phonopy_bands(atoms, calc, dim, displacement, npoints, eigenvectors, outdir,
     from phonopy.structure.atoms import PhonopyAtoms
     from ase import Atoms
 
+    # Remove the relaxation's numerical noise from the cell metric first: the
+    # band PATH comes from seekpath at its hard-coded symprec=1e-5, which no
+    # phonopy argument reaches (see symmetrize_lattice).
+    atoms, lat_report = symmetrize_lattice(atoms, symprec)
+    print(f"  lattice symmetrized ({lat_report['n_operations']} ops, "
+          f"max shift {lat_report['max_lattice_shift_A']:.2e} A)")
+
     unit = PhonopyAtoms(symbols=atoms.get_chemical_symbols(),
                         cell=atoms.cell.array,
                         scaled_positions=atoms.get_scaled_positions())
@@ -335,7 +402,7 @@ def phonopy_bands(atoms, calc, dim, displacement, npoints, eigenvectors, outdir,
     # arrays in THz.
     bs = phonon.band_structure
     fmin = float(min(np.min(f) for f in bs.frequencies))
-    return phonon, band_yaml, fmin
+    return phonon, band_yaml, fmin, lat_report
 
 
 # ----------------------------------------------------------------------------
@@ -518,7 +585,7 @@ def main(argv=None):
     print("[4/5] phonopy finite displacements")
     dim = np.array(args.dim) if args.dim else auto_dim(atoms)
     print(f"  supercell {dim.tolist()}")
-    phonon, band_yaml, fmin = phonopy_bands(
+    phonon, band_yaml, fmin, lat_report = phonopy_bands(
         atoms, calc, dim, args.displacement, args.npoints,
         not args.no_eigenvectors, outdir, args.symprec)
 
@@ -545,7 +612,8 @@ def main(argv=None):
         "phonopy": {"supercell": dim.tolist(),
                     "displacement_A": args.displacement,
                     "npoints": args.npoints,
-                    "eigenvectors": not args.no_eigenvectors},
+                    "eigenvectors": not args.no_eigenvectors,
+                    "lattice_symmetrization": lat_report},
         "min_band_frequency_THz": fmin,
         "dynamically_stable_at_0K": bool(stable),
         "outputs": {"band_yaml": str(band_yaml),
@@ -553,8 +621,8 @@ def main(argv=None):
     }
     (outdir / "summary.json").write_text(json.dumps(summary, indent=2))
     print(f"  wrote {band_yaml}, {relaxed_cif}, {outdir/'summary.json'}")
-    print("  -> load band.yaml in rmc-phonon-dynamics next to the "
-          "covariance bands; use relaxed.cif as the displacement reference.")
+    print("  -> open band.yaml in viewer/ (cd viewer && npm run dev); "
+          "use relaxed.cif as the displacement reference.")
 
 
 if __name__ == "__main__":

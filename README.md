@@ -1,20 +1,43 @@
-# rmc-mlip-phonons
+# mlip-dynamic-refinement
 
-Correct phonon bands and static-vs-dynamic mode classification for
-[RMCProfile](https://rmcprofile.ornl.gov) ensembles, using machine-learned
-interatomic potentials (MLIPs).
+Separating **static from dynamic disorder** in total-scattering and
+spectroscopy data, by refining a structural model whose *dynamics* come from a
+machine-learned interatomic potential (MLIP) rather than from an atom-moving
+Monte Carlo ensemble.
 
-This is the **native compute pipeline** companion to
-[`rmc-phonon-dynamics`](https://github.com/drthyang/rmc-phonon-dynamics),
-which stays a pure client-side viewer. The contract between the two repos is
-the file bundle this pipeline emits:
+Self-contained: the Python pipeline computes, and `viewer/` is a static
+browser front end for the files it emits. The pipeline never depends on the
+viewer — every milestone runs without node installed.
 
-| File           | Consumed by the viewer as                                  |
-| -------------- | ---------------------------------------------------------- |
-| `band.yaml`    | a phonopy band structure, overlaid on the covariance bands |
-| `relaxed.cif`  | the equilibrium displacement reference                     |
-| `summary.json` | provenance and stability report                            |
-| `verdicts.json`| per-mode static/dynamic badges *(milestone 3)*             |
+| File             | What it is                                             |
+| ---------------- | ------------------------------------------------------ |
+| `band.yaml`      | 0 K harmonic bands (phonopy-standard)                  |
+| `band_T.yaml`    | temperature-effective bands, quantum-sampled           |
+| `band_rmc.yaml`  | effective bands from RMC snapshots + MLIP forces       |
+| `relaxed.cif`    | the equilibrium displacement reference                 |
+| `closure.json`   | G(r)/F(Q) closure against measured total scattering    |
+| `summary.json`   | provenance and stability report                        |
+| `verdicts.json`  | per-mode static/dynamic badges                         |
+| `modes_irrep.yaml` | published distortion patterns as Bloch eigenvectors  |
+
+## Scope pivot (2026-07-23, in progress)
+
+RMC is being demoted from **inference engine** to **screening tool**. Total
+scattering is the energy integral of S(Q,E), so G(r)/S(Q) alone cannot
+distinguish a frozen distortion from a soft mode from order–disorder hopping —
+which is exactly why the milestone-3 verdicts needed an RMC ensemble, a
+quantum null, and a fitted noise fraction to attack the question indirectly.
+Inelastic data resolves it *as data*: at a given Q, a frozen distortion is
+elastic, a soft mode is a peak at ±ħω, and hopping is a quasielastic
+Lorentzian.
+
+So the intended evidence chain is forward closure against F(Q) + Bragg +
+S(Q,E), with RMC used to *suggest* what belongs in the refinement move space
+rather than to carry a verdict. Design note: `docs/idea-dynamic-refinement.md`.
+
+**Open gating question:** whether the available SEQUOIA/ARCS reductions retain
+the full S(Q,E) map with the elastic line, or only multiphonon-corrected GDOS.
+The answer decides how much of the pivot is reachable now.
 
 ## Why
 
@@ -55,8 +78,16 @@ python milestone1_bands.py run_dir/ --device cuda --dim 3 3 2 --no-eigenvectors
 python milestone1_bands.py run_dir/ --stride 2 --max-configs 100 --seed 0
 ```
 
-Then open `m1_out/band.yaml` in the `rmc-phonon-dynamics` viewer next to the
-covariance bands, and use `m1_out/relaxed.cif` as the displacement reference.
+Then view the result:
+
+```bash
+cd viewer && npm install && npm run dev
+```
+
+Drop `m1_out/band.yaml` onto the page (or deep-link it with
+`?load=<url>`) to plot the bands, click any point to animate that mode in 3D,
+and open the *Simulated INS* tab for a powder S(|Q|,E) map. Everything runs
+client-side; nothing is uploaded.
 
 `--calc emt` runs a dependency-free smoke test of the plumbing (metals-only
 toy potential — not for science).

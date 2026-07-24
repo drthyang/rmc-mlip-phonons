@@ -1,6 +1,75 @@
 # Changelog
 
 ## [Unreleased]
+### Changed
+- **Renamed `rmc-mlip-phonons` → `mlip-dynamic-refinement` (2026-07-23).**
+  GitHub redirects the old URL; the local remote and all in-repo references
+  were updated. The old name described inputs (RMC) + engine (MLIP) + output
+  (phonons); the deliverable is now separating static from dynamic disorder by
+  refining a model against F(Q) + Bragg + S(Q,E).
+- **Scope pivot: RMC demoted from inference engine to screening tool.**
+  Total scattering is the energy integral of S(Q,E), so G(r)/S(Q) cannot by
+  itself distinguish a frozen distortion (elastic) from a soft mode (peak at
+  ±ħω) from order–disorder hopping (quasielastic) — the ambiguity milestone 3
+  attacks indirectly with an RMC ensemble, a quantum null and a fitted noise
+  fraction. Intended evidence chain is now forward closure against measured
+  data, with RMC used to suggest refinement coordinates rather than to carry a
+  verdict. Rationale in README; gating question (do the SEQUOIA/ARCS
+  reductions retain the elastic line, or only GDOS?) still open.
+- **Detached from `rmc-phonon-dynamics`.** The "no web UI in this repo" and
+  "frozen interchange contract" boundaries in CLAUDE.md are retired — there is
+  no external counterparty. `band.yaml` stays phonopy-standard by choice
+  (phonopy / Euphonic / OVITO / phononwebsite interop), not by contract.
+
+### Added
+- **`viewer/`** — self-contained browser front end, vendored from
+  `rmc-phonon-dynamics` `web/src` (MIT, same author). Carried over: the
+  Three.js `CrystalViewer` and `BrillouinZoneViewer`, the band-structure plot,
+  mode inspector, simulated-INS panel + S(Q,E) worker, the phonopy band-yaml
+  reader, and 7 general crystallography modules (~4.3 kloc). Deliberately left
+  behind: the entire covariance route (`math/symmetrize.js`, `symmetry.js`,
+  `cells.js`, `compute/engine.js`, `pipeline.js`, `Sk_kernel.wgsl`) and the
+  RMC dataset shell (`pages/`, `io/readers.js`, `io/sqgr.js`). `src/App.jsx`
+  is new; `?load=<url>` deep-links a band yaml. `npm run validate` (6 suites)
+  and `npm run build` both pass.
+- **EMT end-to-end re-verified against installed dependencies** (ase 3.29,
+  phonopy 4.4, spglib 2.7): 12-config synthetic Cu fcc ensemble →
+  `milestone1_bands.py --calc emt` recovers Fm-3m (225), natom = 1 primitive,
+  min band frequency 3.1e-6 THz (acoustic branches vanish at Γ). The resulting
+  `band.yaml` loads and animates in `viewer/`. Full suite: 73 passed,
+  17 skipped (optional deps / private data).
+
+### Fixed
+- **Band paths were computed at seekpath's hardcoded `symprec=1e-5`** and were
+  therefore wrong for every relaxed cell. `Phonopy.auto_band_structure()`
+  takes no `symprec`, so ~1e-5 Å of residual relaxation noise made seekpath
+  read fcc Cu as **aP2 / P1**, giving the triclinic path Γ-X | Y-Γ | Γ-Z …
+  instead of cF2's Γ-X-U | K-Γ-L-W-X. Consequences: meaningless
+  high-symmetry labels, a path that never visits the real X/L/W/K points, and
+  — because the path depended on numerical noise — no guarantee that band
+  yamls from *different* scripts shared a q-path, which silently invalidates
+  overlaying them or differencing their frequencies (`md_run.py` and
+  `hiphive_fit.py` both report an element-wise `max|Δω|` against the harmonic
+  bands).
+
+  Fixed with `milestone1_bands.symmetrize_lattice()`: the metric tensor
+  g = A·Aᵀ obeys Rᵀ g R = g for every fractional rotation of the true space
+  group, so the noise is averaged out over the group and the cell rebuilt as
+  A' = S·A with S = g_sym^{1/2}·g^{-1/2} (exact: S g Sᵀ = g_sym; S → I as
+  g → g_sym, so the Cartesian frame is preserved). **Lattice only** —
+  fractional coordinates, atom order and atom count are untouched, which the
+  hiPhive FCP evaluation and the `ideal`-supercell indexing depend on.
+  Applied at all four `Phonopy` construction sites (`milestone1_bands.py`,
+  `md_run.py` ×2, `hiphive_fit.py`); the shift is reported in `summary.json`
+  under `phonopy.lattice_symmetrization`.
+
+  Verified on the Cu fixture: 192 operations found, max lattice shift
+  3.1e-5 Å, path restored to Γ-X-U | K-Γ-L-W-X, reciprocal lattice now
+  exactly symmetric, min frequency −1.8e-6 THz (still stable). New unit test
+  `tests/test_symmetrize_lattice.py` (6 cases) covers the fixed point, noise
+  removal, coordinate/order/orientation preservation, the no-symmetry
+  passthrough, and the seekpath regression itself.
+
 ### Verified
 - **Cross-repo units audit vs phonopy defaults (2026-07-21)**: this repo is
   clean — frequencies are THz everywhere via phonopy's default factor

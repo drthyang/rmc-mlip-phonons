@@ -1,4 +1,4 @@
-# --- rmc-mlip-phonons ignores ---
+# --- mlip-dynamic-refinement ignores ---
 
 # Ensembles, trajectories, results, model weights — never committed (see CLAUDE.md)
 data/

@@ -1,0 +1,31 @@
+{
+  "name": "mlip-dynamic-refinement-viewer",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "3D phonon-mode viewer for the pipeline's band.yaml / modes_irrep.yaml output.",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "oxlint",
+    "validate": "node test/diagonalize_test.mjs && node test/bz_test.mjs && node test/dos_test.mjs && node test/highsym_test.mjs && node test/units_test.mjs && node test/viewermodel_test.mjs"
+  },
+  "dependencies": {
+    "gif.js": "^0.2.0",
+    "js-yaml": "^4.3.0",
+    "ml-matrix": "^6.13.0",
+    "munkres-js": "^1.2.2",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "three": "^0.185.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.1",
+    "@vitejs/plugin-react": "^6.0.2",
+    "oxlint": "^1.69.0",
+    "tailwindcss": "^4.3.1",
+    "vite": "^8.1.0"
+  }
+}

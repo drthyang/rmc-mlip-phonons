@@ -292,6 +292,9 @@ def harmonic_model(atoms, calc, dim, displacement, symprec):
     from phonopy.structure.atoms import PhonopyAtoms
     from ase import Atoms
 
+    # See m1.symmetrize_lattice: seekpath fixes the band path at symprec=1e-5,
+    # which no phonopy argument reaches, so the cell metric is idealized first.
+    atoms, _ = m1.symmetrize_lattice(atoms, symprec)
     unit = PhonopyAtoms(symbols=atoms.get_chemical_symbols(),
                         cell=atoms.cell.array,
                         scaled_positions=atoms.get_scaled_positions())
@@ -404,9 +407,10 @@ def effective_bandT(phonon, atoms_unit, snapshots, forces, ideal, cutoff,
     fcp = ForceConstantPotential(cs, opt.parameters)
     fc2 = fcp.get_force_constants(ideal).get_fc_array(order=2)
 
-    unit = PhonopyAtoms(symbols=atoms_unit.get_chemical_symbols(),
-                        cell=atoms_unit.cell.array,
-                        scaled_positions=atoms_unit.get_scaled_positions())
+    atoms_sym, _ = m1.symmetrize_lattice(atoms_unit, symprec)
+    unit = PhonopyAtoms(symbols=atoms_sym.get_chemical_symbols(),
+                        cell=atoms_sym.cell.array,
+                        scaled_positions=atoms_sym.get_scaled_positions())
     dim = np.rint(np.diag(ideal.cell.array) /
                   np.diag(atoms_unit.cell.array)).astype(int)
     ph_T = Phonopy(unit, supercell_matrix=np.diag(dim),

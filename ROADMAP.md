@@ -1,9 +1,8 @@
-# rmc-mlip-phonons — Development Roadmap
+# mlip-dynamic-refinement — Development Roadmap
 
-*Last updated: 2026-07-19. Compute pipeline companion to
-[`rmc-phonon-dynamics`](https://github.com/drthyang/rmc-phonon-dynamics)
-(the browser viewer). Contract: this repo emits `band.yaml`, `relaxed.cif`,
-`summary.json`, and later `verdicts.json`; the viewer loads them.*
+*Last updated: 2026-07-23. Self-contained: the Python pipeline computes and
+`viewer/` displays. Renamed from `rmc-mlip-phonons` and detached from
+`rmc-phonon-dynamics` on 2026-07-23; see README "Scope pivot".*
 
 ---
 
@@ -124,9 +123,21 @@ converged configs (F-4̄3m, dynamically stable, 39 branches). `pytest -q` is
       requires the distorted-phase (M4 fine-tuned) model. ω fields written
       into verdicts.json (omega_source = mace-null).
 - [x] emit `verdicts.json` (per-mode static/dynamic badges) — **M3
-      COMPLETE** (this repo's side; viewer overlay tracked in
-      `rmc-phonon-dynamics`)
-- [ ] viewer-side overlay + badge panels (tracked in `rmc-phonon-dynamics`)
+      COMPLETE**
+- [x] `viewer/` — 3D mode animator, band plot and simulated-INS panel
+      vendored in-repo (2026-07-23) from `rmc-phonon-dynamics` @ MIT; the
+      covariance route (`math/symmetrize.js`, `symmetry.js`, `cells.js`, the
+      WebGPU S(k) pipeline) was deliberately left behind.
+- [ ] viewer: overlay several band yamls on one axis + verdict badge panel
+- [ ] **control experiment for the M3b verdicts** — run RMCProfile on
+      *synthetic* F(Q) generated from the MLIP quantum ensemble (zero static
+      disorder by construction), push the output through `mode_project.py`
+      unchanged, and read off the per-mode amplitude RMC manufactures from
+      data containing none. The existing nulls (`shuffle_cells`,
+      `random_signs`) take the configs as given and cannot test this;
+      `f_noise` is currently one scalar applied flat across mode space.
+      Until this runs, "X5 is static" is not separable from "X5 is where the
+      RMC move statistics pile up".
 
 ## Vision — model-space RMC / "dynamic EPSR" (concept, post-M3)
 

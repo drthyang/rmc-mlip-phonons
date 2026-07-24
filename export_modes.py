@@ -2,9 +2,9 @@
 """export_modes.py — milestone 3: emit the irrep modes in phonopy's format.
 
 Writes `modes_irrep.yaml` in the band.yaml schema (nqpoint / natom /
-lattice / points / phonon → band → frequency + eigenvector), so the
-rmc-phonon-dynamics viewer and any phonopy-aware tool can animate the
-atomic motion of each distortion mode directly.
+lattice / points / phonon → band → frequency + eigenvector), so viewer/
+and any phonopy-aware tool can animate the atomic motion of each
+distortion mode directly.
 
 Each published irrep pattern (X5, X3, W4, Δ, Γ1, Γ3 — plus TOTAL, the full
 refined distortion) is converted to a proper Bloch eigenvector at the arm
@@ -201,8 +201,9 @@ def main(argv=None):
     print(f"wrote {yaml_path} (compact: cubic cell, doubling in q)")
 
     # ---- Γ-folded 1x1x2 supercell representation ------------------------
-    # Viewers that draw only the base cell and ignore Bloch phases (the
-    # rmc-phonon-dynamics animator among them) need the doubling explicit:
+    # Viewers that draw only the base cell and ignore Bloch phases need the
+    # doubling explicit (viewer/'s CrystalViewer does apply the Bloch phase,
+    # so for it either representation works):
     # the 104-atom tetragonal cell with every mode at q = 0 and the
     # inter-cell alternation baked into a purely real eigenvector.
     slab_frac = np.array([[*aligned52[i % 52][:2],

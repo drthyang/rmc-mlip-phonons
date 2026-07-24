@@ -1,4 +1,4 @@
-# rmc-mlip-phonons — milestone 1
+# mlip-dynamic-refinement — milestone 1
 numpy
 ase>=3.23
 spglib>=2.0

@@ -1,4 +1,4 @@
-"""Shared pytest fixtures and helpers for the rmc-mlip-phonons test suite.
+"""Shared pytest fixtures and helpers for the mlip-dynamic-refinement test suite.
 
 Makes the standalone milestone scripts importable (they live at the repo root,
 not in a package yet — see CLAUDE.md "refactor into a package only at

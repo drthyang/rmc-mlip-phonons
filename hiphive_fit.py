@@ -161,6 +161,11 @@ def bands_from_fcp(fcp, unit_atoms, band_dim, npoints, symprec, outpath,
     from phonopy import Phonopy
     from phonopy.structure.atoms import PhonopyAtoms
 
+    # See m1.symmetrize_lattice: the band path comes from seekpath at its
+    # hard-coded symprec=1e-5, so the cell metric is idealized first. Lattice
+    # only — fractional coordinates and atom order are untouched, which the
+    # FCP evaluation on ph.supercell below depends on.
+    unit_atoms, _ = m1.symmetrize_lattice(unit_atoms, symprec)
     unit = PhonopyAtoms(symbols=unit_atoms.get_chemical_symbols(),
                         cell=unit_atoms.cell.array,
                         scaled_positions=unit_atoms.get_scaled_positions())

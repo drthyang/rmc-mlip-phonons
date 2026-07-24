@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Spline+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&family=Noto+Sans:wght@500;600;700&family=Open+Sans:wght@400;500;600&family=STIX+Two+Text:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+/* ── Cobalt theme (Runner redesign) ───────────────────────────────────────
+   Drives the redesigned Runner page + app shell. Tokens are applied via the
+   `--bg … --bar` CSS variables below; the legacy Viewer keeps its own dark
+   styling from Tailwind classes. */
+:root {
+  --bg: #f3f5f9;        /* page background            */
+  --card: #ffffff;      /* card surface               */
+  --inset: #f7f9fc;     /* inset panels / fields      */
+  --inset2: #eef1f7;    /* nav pill / progress track  */
+  --border: #e3e7ef;    /* borders / hairlines        */
+  --ink: #101826;       /* primary text               */
+  --dim: #6b7488;       /* secondary text             */
+  --faint: #9aa1b2;     /* muted labels / ticks       */
+  --accent: #2f6df0;    /* primary actions, fit line  */
+  --accentInk: #2257cf; /* accent text / values       */
+  --soft: #e9f0ff;      /* accent-tint backgrounds    */
+  --warn: #f0663b;      /* secondary BZ points        */
+  --warnInk: #c8502b;   /* secondary point labels     */
+  --bar: #d5dae4;       /* unselected R-value bars    */
+
+  /* legacy tokens kept for the Viewer page / shared components */
+  --background: #09090b;
+  --foreground: #fafafa;
+  --primary: #3b82f6;
+  --surface: #18181b;
+}
+
+@keyframes blip { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: 'Spline Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Legacy dark glass panel — still used by the Viewer page. */
+.glass-panel {
+  background: rgba(24, 24, 27, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid #27272a;
+}
+
+/* Scale the whole app up a touch for readability (Chromium-only app, so the
+   non-standard `zoom` is safe and scales text + layout uniformly). */
+.rnr { zoom: 1.15; }
+
+/* S(Q,E) figure: heatmap + integrated-intensity curve on ONE shared energy axis.
+   A single grid row makes the browser guarantee equal heights (no JS pixel math,
+   zoom-safe). `cqw` sizes the plot to the container width. */
+.sqe-fig { container-type: inline-size; }
+.sqe-grid {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 16px 150px;
+  grid-template-rows: clamp(300px, 42cqw, 600px) auto;
+  grid-template-areas:
+    "ticks heat bar curve"
+    ".     qlab .   glab";
+  column-gap: 10px;
+  align-items: stretch;
+}
+/* Narrow container: stack the curve below the heatmap (alignment is dropped). */
+@container (max-width: 560px) {
+  .sqe-grid {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: 300px auto 240px auto;
+    grid-template-areas:
+      "ticks heat"
+      ".     qlab"
+      "curve curve"
+      "glab  glab";
+  }
+  .sqe-grid .sqe-bar { display: none; }
+}
+
+/* Runner-scoped helpers (light theme). */
+.rnr ::-webkit-scrollbar { width: 9px; height: 9px; }
+.rnr ::-webkit-scrollbar-thumb { background: #d5dae4; border-radius: 6px; }
+.rnr ::-webkit-scrollbar-thumb:hover { background: #c2c9d6; }
+.rnr-step { transition: background .12s, color .12s; }
+.rnr-step:hover { background: var(--soft); color: var(--accent); }
+.rnr-btn { transition: filter .12s, background .12s, border-color .12s; }
+.rnr-btn:hover { filter: brightness(.97); }
+.rnr-bar { transition: filter .1s; }
+.rnr-bar:hover { filter: brightness(1.18) saturate(1.1); }

@@ -1,12 +1,20 @@
-# CLAUDE.md — rmc-mlip-phonons
+# CLAUDE.md — mlip-dynamic-refinement
 
 ## What this project is
 
 Native Python pipeline computing **correct phonon bands** and
 **static-vs-dynamic mode classification** for RMCProfile ensembles using
-machine-learned interatomic potentials. It is the compute companion to
-`drthyang/rmc-phonon-dynamics` (browser viewer, 100% client-side — that repo
-must stay that way). Rationale in `README.md`, plan in `ROADMAP.md`.
+machine-learned interatomic potentials, plus `viewer/` — a self-contained
+browser front end for the band/mode files it emits. Rationale in `README.md`,
+plan in `ROADMAP.md`.
+
+**Scope pivot (2026-07-23, in progress.)** RMC is being demoted from inference
+engine to screening tool: evidence should come from forward closure against
+F(Q) + Bragg + S(Q,E), not from statistics on RMC configurations. See
+`docs/idea-dynamic-refinement.md`. Gating question still open: do the SEQUOIA/
+ARCS reductions retain the full S(Q,E) map with the elastic line, or only the
+multiphonon-corrected GDOS? The answer decides how much of milestone 3
+survives.
 
 Core idea: the viewer's covariance route inverts noisy **amplitudes** into
 frequencies; this pipeline derives frequencies from MLIP **forces**, using the
@@ -15,12 +23,14 @@ amplitudes.
 
 ## Hard boundaries — do not violate
 
-- **No web UI in this repo.** Visualization lives in `rmc-phonon-dynamics`;
-  this repo only emits files the viewer loads.
-- **The interchange contract is frozen:** `band.yaml` stays phonopy-standard
-  (`auto_band_structure` output). Extensions go in **new sidecar files**
-  (`verdicts.json`), never by mutating `band.yaml`.
-- Always emit `relaxed.cif` — it is the viewer's displacement reference.
+- **The Python pipeline never depends on `viewer/`.** Every milestone must run
+  start to finish without node installed. `viewer/` reads the pipeline's
+  output files; nothing flows back.
+- **`band.yaml` stays phonopy-standard** (`auto_band_structure` output). This
+  is no longer an external contract — it is a deliberate choice for interop
+  with phonopy, Euphonic, OVITO and phononwebsite. Extensions go in **new
+  sidecar files** (`verdicts.json`), never by mutating `band.yaml`.
+- Always emit `relaxed.cif` — it is the displacement reference.
 - `default_dtype="float64"` for every MLIP force/phonon evaluation.
 - `data/`, `results/`, `releases/`, `m1_out*/` are git-ignored; **never commit
   ensembles, trajectories, results, or model weights — the data stays
@@ -32,11 +42,26 @@ amplitudes.
 
 ## Current state
 
-`milestone1_bands.py` is a complete end-to-end script
-(rmc6f → fold/circular-average → spglib symmetrize → MLIP relax → phonopy →
-`band.yaml` + `relaxed.cif` + `summary.json`). The parser and circular
-averaging are unit-verified; **the ASE/phonopy/MACE leg has never run against
-installed dependencies** — expect minor API friction and fix forward.
+Milestones 1–3 are implemented and have run end to end on the GTS 5 K data:
+
+| Script | Emits |
+| --- | --- |
+| `milestone1_bands.py` | `band.yaml`, `relaxed.cif`, `summary.json` |
+| `md_run.py` | `closure.json`, `gr_sim.dat`, `sq_sim.dat`, `band_T.yaml` |
+| `hiphive_fit.py` | `band_rmc.yaml`, `fit_report.json` |
+| `mode_project.py` + `verdicts.py` | `verdicts.json` |
+| `export_modes.py` | `modes_irrep.yaml`, per-mode `.xyz` |
+| `viewer/` | browser front end for any of the band yamls |
+
+**Band paths: always idealize the cell metric first.** `auto_band_structure`
+takes no `symprec` and seekpath runs at its hardcoded 1e-5, so ~1e-5 Å of
+residual relaxation noise makes a cubic cell read as P1 and the "standard
+path" becomes the triclinic one. Every `Phonopy` construction site therefore
+calls `milestone1_bands.symmetrize_lattice(atoms, symprec)` first — it
+averages the metric tensor over the space group and rebuilds the cell,
+**lattice only**, leaving fractional coordinates and atom order untouched
+(hiPhive's FCP evaluation and the `ideal`-supercell indexing depend on that).
+Fixed 2026-07-23; do not add a `Phonopy(...)` call without it.
 
 ## Environment / commands
 
@@ -45,8 +70,11 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 python milestone1_bands.py <run_dir>/ -o m1_out     # real run (MACE-MP-0)
 python milestone1_bands.py <run_dir>/ --calc emt    # plumbing smoke test
-pytest -q                                           # once tests exist
+pytest -q
+cd viewer && npm install && npm run dev             # browser front end
 ```
+
+The EMT smoke test needs only numpy/ase/spglib/phonopy/seekpath — no torch.
 
 Note: ASE's EMT is a metals-only toy potential (Cu, Al, Ag, Au, Ni, Pd, Pt).
 Smoke-test fixtures must therefore be a **Cu fcc** synthetic ensemble, not an

@@ -1,7 +1,10 @@
 # Milestone 3 design — verdicts.json contract and mode-projection method
 
-*Status: **draft for review**. The sidecar consumed by the `rmc-phonon-dynamics`
-viewer; per CLAUDE.md the contract is a new file — `band.yaml` stays frozen.
+*Status: **draft for review**; see also the 2026-07-23 scope pivot in README —
+the three-component ratio below is the total-scattering-only route to a
+question S(Q,E) answers directly, and its per-mode noise floor is still
+unvalidated (see the control experiment in ROADMAP). The sidecar is consumed
+by `viewer/`; per CLAUDE.md it is a new file — `band.yaml` is not mutated.
 Ground truth and mode patterns: Yang et al., PRR 4, 033123 (2022) — the
 displacement patterns are taken **directly from the paper's supplemental
 Tables IV–X** (user decision, 2026-07-19), not regenerated from group theory.
