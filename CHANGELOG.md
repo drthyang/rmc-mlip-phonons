@@ -2,11 +2,18 @@
 
 ## [Unreleased]
 ### Changed
-- **Renamed `rmc-mlip-phonons` → `mlip-dynamic-refinement` (2026-07-23).**
-  GitHub redirects the old URL; the local remote and all in-repo references
-  were updated. The old name described inputs (RMC) + engine (MLIP) + output
-  (phonons); the deliverable is now separating static from dynamic disorder by
-  refining a model against F(Q) + Bragg + S(Q,E).
+- **Renamed `rmc-mlip-phonons` → `mlip-dynamic-refinement` →
+  `mlip-disorder-inference` (2026-07-23/24).** GitHub redirects both old URLs.
+  The original name described inputs (RMC) + engine (MLIP) + output (phonons).
+  The intermediate one said *refinement*, which was wrong twice over: the
+  verdict machinery already in the repo is inference, not fitting —
+  `verdicts.py` is a variance decomposition, a ratio against a null and a
+  400-sample bootstrap; `mode_project.py` is a Hungarian assignment, a joint
+  least-squares projection through a pseudo-inverse Gram, and two null models
+  — and the forward S(Q,E) route the pivot heads toward is hypothesis testing
+  with no refinement loop in it at all. *Inference* also contains refinement
+  as the special case of point estimation, so the eventual dynamic-EPSR loop
+  still fits under the name. README and CLAUDE.md reframed to match.
 - **Scope pivot: RMC demoted from inference engine to screening tool.**
   Total scattering is the energy integral of S(Q,E), so G(r)/S(Q) cannot by
   itself distinguish a frozen distortion (elastic) from a soft mode (peak at

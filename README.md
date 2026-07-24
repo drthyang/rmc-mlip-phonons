@@ -1,9 +1,15 @@
-# mlip-dynamic-refinement
+# mlip-disorder-inference
 
-Separating **static from dynamic disorder** in total-scattering and
-spectroscopy data, by refining a structural model whose *dynamics* come from a
-machine-learned interatomic potential (MLIP) rather than from an atom-moving
-Monte Carlo ensemble.
+Deciding how much of the disorder seen in total-scattering and spectroscopy
+data is **frozen** and how much is **motion** — by generating the thermal
+ensemble from a machine-learned interatomic potential (MLIP) with quantum
+statistics as the physical null model, and testing the measurement against it.
+
+The methods are statistical, not just least-squares: mode projections scored
+against explicit null models, variance decomposition of the observed
+displacements, bootstrap confidence on every verdict, and model comparison
+against measured G(r)/F(Q). Structural refinement is one tool inside that —
+not the frame around it.
 
 Self-contained: the Python pipeline computes, and `viewer/` is a static
 browser front end for the files it emits. The pipeline never depends on the

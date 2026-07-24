@@ -1,12 +1,18 @@
-# CLAUDE.md — mlip-dynamic-refinement
+# CLAUDE.md — mlip-disorder-inference
 
 ## What this project is
 
-Native Python pipeline computing **correct phonon bands** and
-**static-vs-dynamic mode classification** for RMCProfile ensembles using
-machine-learned interatomic potentials, plus `viewer/` — a self-contained
-browser front end for the band/mode files it emits. Rationale in `README.md`,
-plan in `ROADMAP.md`.
+Native Python pipeline that **infers how much observed disorder is static and
+how much is dynamic**, using an MLIP-generated quantum-thermal ensemble as the
+physical null model, plus `viewer/` — a self-contained browser front end for
+the band/mode files it emits. Rationale in `README.md`, plan in `ROADMAP.md`.
+
+The machinery is statistical: joint least-squares mode projection with a
+pseudo-inverse Gram (`mode_project.py`), two explicit null models
+(`random_signs`, `shuffle_cells`), variance decomposition into a measured
+noise fraction, bootstrap confidence, and threshold classification
+(`verdicts.py`). Fitting (hiPhive force constants, scale+offset closure) is a
+subroutine, not the thesis — hence *inference*, not *refinement*, in the name.
 
 **Scope pivot (2026-07-23, in progress.)** RMC is being demoted from inference
 engine to screening tool: evidence should come from forward closure against

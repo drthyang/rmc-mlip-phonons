@@ -1,4 +1,4 @@
-# mlip-dynamic-refinement — Development Roadmap
+# mlip-disorder-inference — Development Roadmap
 
 *Last updated: 2026-07-23. Self-contained: the Python pipeline computes and
 `viewer/` displays. Renamed from `rmc-mlip-phonons` and detached from
